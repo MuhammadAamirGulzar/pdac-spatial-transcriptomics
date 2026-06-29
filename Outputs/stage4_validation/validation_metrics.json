@@ -1,0 +1,277 @@
+{
+  "n_spots": 13578,
+  "n_external_matched": 13578,
+  "predictor": "bridge128",
+  "fges_signatures": [
+    "Angiogenesis",
+    "Antitumor_cytokines",
+    "Bcells",
+    "EMT_signature",
+    "Cancer_associated_fibroblasts",
+    "Checkpoint_molecules",
+    "Co_stimulatory_molecules",
+    "Effector_cell_traffic",
+    "Effector_cells",
+    "Endothelium",
+    "Granulocyte_traffic",
+    "Immune_Suppression_by_Myeloid_cells",
+    "M1_signature",
+    "Macrophage_and_DC_traffic",
+    "Matrix",
+    "Matrix_remodeling",
+    "MHCI",
+    "MHCII",
+    "Myeloid_cells_traffic",
+    "Neutrophil_signature",
+    "NK_cells",
+    "Protumor_cytokines",
+    "Tcells",
+    "Th1_signature",
+    "Th2_signature",
+    "Treg",
+    "Treg_and_Th2_traffic",
+    "Tumor_proliferation_rate",
+    "Tumor_associated_Macrophages"
+  ],
+  "test1_pt11_anchor": {
+    "n_pt11": 976,
+    "target_raw_vs_hm11_resemblance": -0.0645075061857786,
+    "target_resid_vs_hm11_resemblance": 0.18400048531095398,
+    "vision_raw_vs_hm11_resemblance": -0.29146331578383533,
+    "vision_resid_vs_hm11_resemblance": -0.2145550692407078,
+    "pt11_extEMT_vs_hm11_resemblance": 0.030365720606484122
+  },
+  "test2_signatures": {
+    "target_raw_vs_extEMT": {
+      "pooled": 0.20547640405608988,
+      "per_sample": {
+        "IU_PDA_T1": 0.2204754975144958,
+        "IU_PDA_T3": 0.1609393703489955,
+        "IU_PDA_T4": 0.20618745888136683,
+        "IU_PDA_T11": 0.31131853446817725
+      }
+    },
+    "target_resid_vs_extEMT": {
+      "pooled": 0.2048645320606624,
+      "per_sample": {
+        "IU_PDA_T1": 0.21685403515547713,
+        "IU_PDA_T3": 0.19609448509136426,
+        "IU_PDA_T4": 0.2144916041138417,
+        "IU_PDA_T11": 0.22215545905263048
+      }
+    },
+    "target_raw_vs_heldout": 0.4148384289858042,
+    "target_resid_vs_heldoutresid": 0.1244228724210641,
+    "vision_raw_vs_extEMT": {
+      "pooled": 0.10431288059140367,
+      "per_sample": {
+        "IU_PDA_T1": 0.0744631856585168,
+        "IU_PDA_T3": 0.03334591038911188,
+        "IU_PDA_T4": 0.037087695896397974,
+        "IU_PDA_T11": 0.08525203542906394
+      }
+    },
+    "vision_resid_vs_extEMT": {
+      "pooled": 0.006408732470302397,
+      "per_sample": {
+        "IU_PDA_T1": -0.038432978150248584,
+        "IU_PDA_T3": -0.000140427390068218,
+        "IU_PDA_T4": 0.038026473413770336,
+        "IU_PDA_T11": 0.041946956016699295
+      }
+    },
+    "vision_raw_vs_heldout": 0.24039961978447005,
+    "vision_resid_vs_heldoutresid": 0.06302654375231083
+  },
+  "test2_fges_specificity": {
+    "Angiogenesis": {
+      "target_raw": 0.09411045212038545,
+      "vision_raw": 0.07837086253968598,
+      "vision_resid": -0.03151767403583946
+    },
+    "Antitumor_cytokines": {
+      "target_raw": 0.0161305191721172,
+      "vision_raw": 0.049330853662607914,
+      "vision_resid": 0.05625452061024598
+    },
+    "Bcells": {
+      "target_raw": 0.027768984133770613,
+      "vision_raw": 0.13832069927378338,
+      "vision_resid": 0.0519375546475876
+    },
+    "EMT_signature": {
+      "target_raw": 0.20547640405608988,
+      "vision_raw": 0.10431288059140367,
+      "vision_resid": 0.006408732470302397
+    },
+    "Cancer_associated_fibroblasts": {
+      "target_raw": 0.3065763355528697,
+      "vision_raw": 0.12714141337153492,
+      "vision_resid": -0.08262737360258798
+    },
+    "Checkpoint_molecules": {
+      "target_raw": 0.0734079969604537,
+      "vision_raw": 0.15857518163048773,
+      "vision_resid": 0.0507709944087807
+    },
+    "Co_stimulatory_molecules": {
+      "target_raw": 0.03994374768150799,
+      "vision_raw": 0.12748055667520966,
+      "vision_resid": 0.05834256436776655
+    },
+    "Effector_cell_traffic": {
+      "target_raw": 0.04232220027718517,
+      "vision_raw": 0.1276485488331146,
+      "vision_resid": 0.08201024635685429
+    },
+    "Effector_cells": {
+      "target_raw": 0.06539594190198975,
+      "vision_raw": 0.21041643734326648,
+      "vision_resid": 0.06947422810812137
+    },
+    "Endothelium": {
+      "target_raw": 0.008688458762399666,
+      "vision_raw": 0.06652719361295344,
+      "vision_resid": -0.03827296303601072
+    },
+    "Granulocyte_traffic": {
+      "target_raw": 0.10880427897207012,
+      "vision_raw": 0.0871267117474681,
+      "vision_resid": 0.05196262762858097
+    },
+    "Immune_Suppression_by_Myeloid_cells": {
+      "target_raw": 0.06598599191371987,
+      "vision_raw": 0.08257134493995621,
+      "vision_resid": 0.03581128674499961
+    },
+    "M1_signature": {
+      "target_raw": 0.037052341911086896,
+      "vision_raw": -0.02105627966509293,
+      "vision_resid": 0.011832079742092933
+    },
+    "Macrophage_and_DC_traffic": {
+      "target_raw": 0.097366457223461,
+      "vision_raw": 0.1080518342752331,
+      "vision_resid": 0.026925554331357522
+    },
+    "Matrix": {
+      "target_raw": 0.28555934352030343,
+      "vision_raw": -0.024655081050448672,
+      "vision_resid": -0.013833748932545303
+    },
+    "Matrix_remodeling": {
+      "target_raw": 0.21438455852871288,
+      "vision_raw": 0.04386923701749812,
+      "vision_resid": -0.026202964585567454
+    },
+    "MHCI": {
+      "target_raw": -0.022228384210696304,
+      "vision_raw": -0.09367123808363634,
+      "vision_resid": -0.02571431605383516
+    },
+    "MHCII": {
+      "target_raw": 0.03963486361304591,
+      "vision_raw": 0.08474745932850193,
+      "vision_resid": 0.05141681515852239
+    },
+    "Myeloid_cells_traffic": {
+      "target_raw": 0.1083096349416406,
+      "vision_raw": 0.09916115953676317,
+      "vision_resid": 0.013689093665153232
+    },
+    "Neutrophil_signature": {
+      "target_raw": 0.08404122397938793,
+      "vision_raw": 0.12703231153951755,
+      "vision_resid": 0.1378003227620759
+    },
+    "NK_cells": {
+      "target_raw": 0.05821372814382861,
+      "vision_raw": 0.18866441385997404,
+      "vision_resid": 0.08178867838110986
+    },
+    "Protumor_cytokines": {
+      "target_raw": 0.15549080688619904,
+      "vision_raw": -0.06127673103373409,
+      "vision_resid": 0.02134191492459992
+    },
+    "Tcells": {
+      "target_raw": 0.04591150967578291,
+      "vision_raw": 0.13768085859744736,
+      "vision_resid": 0.02098760571310973
+    },
+    "Th1_signature": {
+      "target_raw": 0.07649393239681249,
+      "vision_raw": 0.2101851816057536,
+      "vision_resid": 0.08778661365091105
+    },
+    "Th2_signature": {
+      "target_raw": 0.08807579023142469,
+      "vision_raw": 0.19013224928441044,
+      "vision_resid": 0.07295202739265634
+    },
+    "Treg": {
+      "target_raw": 0.09113544580370077,
+      "vision_raw": 0.18423031925625447,
+      "vision_resid": 0.03711234035980613
+    },
+    "Treg_and_Th2_traffic": {
+      "target_raw": 0.09453438255522117,
+      "vision_raw": 0.13768819469397817,
+      "vision_resid": 0.040360131741624006
+    },
+    "Tumor_proliferation_rate": {
+      "target_raw": 0.0023170633936962035,
+      "vision_raw": -0.016029275174277654,
+      "vision_resid": 0.10313899032235799
+    },
+    "Tumor_associated_Macrophages": {
+      "target_raw": 0.06383861222433501,
+      "vision_raw": 0.04883256028205511,
+      "vision_resid": 0.007752892982430799
+    }
+  },
+  "test3_invasive_margin": {
+    "n_margin": 2602,
+    "n_interior": 2033,
+    "target_raw": {
+      "n_margin": 2602,
+      "n_interior": 2033,
+      "mean_margin": 0.4108970697270044,
+      "mean_interior": 0.6617754408000389,
+      "p_margin_gt_interior": 1.0
+    },
+    "target_resid": {
+      "n_margin": 2602,
+      "n_interior": 2033,
+      "mean_margin": -0.12427471294213518,
+      "mean_interior": -0.026165275615562533,
+      "p_margin_gt_interior": 0.9991212394630583
+    },
+    "vision_raw": {
+      "n_margin": 2602,
+      "n_interior": 2033,
+      "mean_margin": 0.271264402694357,
+      "mean_interior": 0.4046037276739857,
+      "p_margin_gt_interior": 1.0
+    },
+    "vision_resid": {
+      "n_margin": 2602,
+      "n_interior": 2033,
+      "mean_margin": 0.049579863206541674,
+      "mean_interior": 0.055725163226328235,
+      "p_margin_gt_interior": 0.8424620938783172
+    }
+  },
+  "test4_negative_control": {
+    "decorrelation": {
+      "vision_resid_vs_tumor_frac": -0.017858199059956916,
+      "vision_resid_vs_hepatocyte": -0.002415115106905841,
+      "vision_resid_vs_caf": -0.013600789525320912,
+      "vision_raw_vs_tumor_frac": 0.5072281015904166,
+      "target_resid_vs_hepatocyte": -0.052829610152352456
+    },
+    "abundance_ceiling_tumorfrac_only_rho": 0.47827942577115523,
+    "vision_raw_rho_for_reference": 0.28856757271263217,
+    "vision_minus_abundance_ceiling": -0.18971185305852306
+  }
+}

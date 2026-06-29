@@ -1,0 +1,36 @@
+# API keys — never commit
+keys.txt
+
+# All dataset files (large binary/data — on Kaggle, not here)
+dataset/
+
+# Jupyter checkpoint folders
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Model checkpoints and large binary outputs
+Outputs/Plots/
+Outputs/bridge_ckpts/
+Outputs/stage2/
+*.pt
+*.pth
+*.ckpt
+*.npy
+
+# Redundant zip of CSVs already tracked individually
+Outputs/Patient-Sample-Information.zip
+
+# Auto-generated tissue thumbnail cache (derived from dataset)
+presentation/_tissue_cache/
+
+# Claude Code local settings
+.claude/
+
+# OS artifacts
+.DS_Store
+Thumbs.db

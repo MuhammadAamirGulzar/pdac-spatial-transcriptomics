@@ -1,0 +1,110 @@
+
+===== SLIDE 0 =====
+  [AUTO_SHAPE (1)] 'Shape 0' | pos=(11.67,0.00) size=(6.11x10.00) | fill=1E4A6E
+  [PICTURE (13)] 'Image 0' | pos=(11.67,0.00) size=(6.11x10.00)
+  [AUTO_SHAPE (1)] 'Text 1' | pos=(1.11,1.11) size=(9.72x0.39) | fill=None | RUN 'SPATIAL TRANSCRIPTOMICS RESEARCH' font=Liter sz=15.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Text 2' | pos=(1.11,1.67) size=(10.00x2.78) | fill=None | RUN 'Spatial Transcriptomics & Multimodal Met' font=Liter sz=48.0 bold=True color=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 3' | pos=(1.11,4.57) size=(10.00x0.50) | fill=None | RUN 'Progress Report' font=Liter sz=22.0 bold=None color=2C5F8A
+  [AUTO_SHAPE (1)] 'Shape 4' | pos=(1.11,5.28) size=(2.50x0.00) | fill=None
+  [AUTO_SHAPE (1)] 'Text 5' | pos=(1.11,5.69) size=(9.72x1.67) | fill=None | RUN 'Research Advisors: Dr. Ashiq Masood & Dr' font=Liter sz=18.0 bold=None color=8D8D8D | RUN 'Mohsin Bilal' font=Liter sz=None bold=None color=8D8D8D | RUN 'Date: 25' font=Liter sz=18.0 bold=None color=8D8D8D | RUN 'th' font=Liter sz=18.0 bold=None color=8D8D8D | RUN 'June 2026' font=Liter sz=18.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Text 6' | pos=(11.40,9.04) size=(5.56x0.39) | fill=None | RUN 'PDAC LIVER METASTASIS PREDICTION' font=Liter sz=13.0 bold=None color=FFFFFF
+  [AUTO_SHAPE (1)] 'Shape 7' | pos=(0.00,9.94) size=(17.78x0.06) | fill=E07B54
+
+===== SLIDE 1 =====
+  [AUTO_SHAPE (1)] 'Text 0' | pos=(1.11,0.56) size=(8.33x0.69) | fill=None | RUN 'Presentation Overview' font=Liter sz=30.0 bold=True color=2C5F8A
+  [AUTO_SHAPE (1)] 'Shape 1' | pos=(1.11,1.33) size=(15.56x0.00) | fill=None
+  [AUTO_SHAPE (1)] 'Shape 2' | pos=(1.78,2.36) size=(0.56x0.56) | fill=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 3' | pos=(1.78,2.36) size=(0.56x0.56) | fill=None | RUN '1' font=Liter sz=20.0 bold=True color=FFFFFF
+  [AUTO_SHAPE (1)] 'Shape 4' | pos=(2.33,2.62) size=(2.11x0.00) | fill=None
+  [AUTO_SHAPE (1)] 'Shape 5' | pos=(5.00,2.36) size=(0.56x0.56) | fill=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 6' | pos=(5.00,2.36) size=(0.56x0.56) | fill=None | RUN '2' font=Liter sz=20.0 bold=True color=FFFFFF
+  [AUTO_SHAPE (1)] 'Shape 7' | pos=(5.56,2.62) size=(2.11x0.00) | fill=None
+  [AUTO_SHAPE (1)] 'Shape 8' | pos=(8.22,2.36) size=(0.56x0.56) | fill=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 9' | pos=(8.22,2.36) size=(0.56x0.56) | fill=None | RUN '3' font=Liter sz=20.0 bold=True color=FFFFFF
+  [AUTO_SHAPE (1)] 'Shape 10' | pos=(8.78,2.62) size=(2.11x0.00) | fill=None
+  [AUTO_SHAPE (1)] 'Shape 11' | pos=(11.44,2.36) size=(0.56x0.56) | fill=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 12' | pos=(11.44,2.36) size=(0.56x0.56) | fill=None | RUN '4' font=Liter sz=20.0 bold=True color=FFFFFF
+  [AUTO_SHAPE (1)] 'Shape 13' | pos=(12.00,2.62) size=(2.11x0.00) | fill=None
+  [AUTO_SHAPE (1)] 'Shape 14' | pos=(14.67,2.36) size=(0.56x0.56) | fill=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 15' | pos=(14.67,2.36) size=(0.56x0.56) | fill=None | RUN '5' font=Liter sz=20.0 bold=True color=FFFFFF
+  [AUTO_SHAPE (1)] 'Text 16' | pos=(0.90,3.17) size=(3.19x0.42) | fill=None | RUN 'Background & Objectives' font=Liter sz=20.0 bold=True color=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 17' | pos=(0.97,3.64) size=(3.06x0.69) | fill=None | RUN 'Clinical problem, research goals, framew' font=Liter sz=16.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Text 18' | pos=(4.33,3.17) size=(2.78x0.42) | fill=None | RUN 'Dataset & Cohort' font=Liter sz=20.0 bold=True color=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 19' | pos=(4.33,3.64) size=(2.78x0.69) | fill=None | RUN 'Patient mapping, QC findings, data inven' font=Liter sz=16.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Text 20' | pos=(7.56,3.17) size=(2.78x0.42) | fill=None | RUN 'Phase A: Tri-Modal' font=Liter sz=20.0 bold=True color=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 21' | pos=(7.56,3.64) size=(2.78x0.69) | fill=None | RUN 'CLIP-style architecture, retrieval resul' font=Liter sz=16.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Text 22' | pos=(10.78,3.17) size=(2.78x0.42) | fill=None | RUN 'Phase B: Metastatic' font=Liter sz=20.0 bold=True color=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 23' | pos=(10.78,3.64) size=(2.78x0.69) | fill=None | RUN '4 modules, direction scoring, GAT smooth' font=Liter sz=16.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Text 24' | pos=(14.00,3.17) size=(2.78x0.42) | fill=None | RUN 'Validation & Next' font=Liter sz=20.0 bold=True color=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 25' | pos=(14.00,3.64) size=(2.78x0.69) | fill=None | RUN 'Heatmap results, open questions, action ' font=Liter sz=16.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Text 26' | pos=(1.11,5.40) size=(15.82x1.67) | fill=None | RUN 'This progress report covers the' font=Liter sz=20.0 bold=None color=333333 | RUN 'tri-modal deep learning framework' font=Liter sz=20.0 bold=True color=333333 | RUN 'for predicting liver-specific metastasis' font=Liter sz=20.0 bold=None color=333333
+  [AUTO_SHAPE (1)] 'Shape 27' | pos=(0.00,9.94) size=(17.78x0.06) | fill=E07B54
+
+===== SLIDE 2 =====
+  [AUTO_SHAPE (1)] 'Shape 0' | pos=(0.00,0.00) size=(17.78x3.00) | fill=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 1' | pos=(1.11,0.83) size=(5.56x0.56) | fill=None | RUN 'PART  01' font=Liter sz=24.0 bold=None color=D9E8F5
+  [AUTO_SHAPE (1)] 'Text 2' | pos=(1.11,1.53) size=(11.11x0.42) | fill=None | RUN 'Clinical Motivation & Research Framework' font=Liter sz=18.0 bold=None color=D9E8F5
+  [AUTO_SHAPE (1)] 'Shape 3' | pos=(1.11,3.75) size=(0.06x1.67) | fill=E07B54
+  [AUTO_SHAPE (1)] 'Text 4' | pos=(1.44,3.72) size=(15.00x1.81) | fill=None | RUN 'Project Background & Objectives' font=Liter sz=48.0 bold=True color=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 5' | pos=(1.44,5.83) size=(12.50x0.83) | fill=None | RUN 'The clinical bottleneck in PDAC manageme' font=Liter sz=20.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Text 6' | pos=(1.11,8.75) size=(15.56x0.42) | fill=None | RUN '* This section establishes the clinical ' font=Liter sz=16.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Shape 7' | pos=(0.00,9.94) size=(17.78x0.06) | fill=E07B54
+
+===== SLIDE 3 =====
+  [AUTO_SHAPE (1)] 'Shape 0' | pos=(0.00,0.00) size=(17.78x0.83) | fill=2C5F8A
+  [FREEFORM (5)] 'Shape 1' | pos=(0.33,0.19) size=(0.44x0.44) | fill=FFFFFF
+  [AUTO_SHAPE (1)] 'Text 2' | pos=(0.97,0.00) size=(13.89x0.83) | fill=None | RUN 'Clinical Problem & Research Motivation' font=Liter sz=28.0 bold=True color=FFFFFF
+  [AUTO_SHAPE (1)] 'Text 3' | pos=(16.67,0.00) size=(0.83x0.83) | fill=None | RUN '04' font=Liter sz=18.0 bold=None color=D9E8F5
+  [AUTO_SHAPE (1)] 'Shape 4' | pos=(0.83,1.11) size=(8.33x5.69) | fill=D9E8F5
+  [AUTO_SHAPE (1)] 'Shape 5' | pos=(0.97,1.12) size=(8.06x0.08) | fill=E07B54
+  [AUTO_SHAPE (1)] 'Text 6' | pos=(1.17,1.39) size=(7.06x0.50) | fill=None | RUN 'The Clinical Bottleneck' font=Liter sz=22.0 bold=True color=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 7' | pos=(1.17,1.93) size=(7.86x4.72) | fill=None | RUN 'PDAC's aggressive metastatic tropism to ' font=Liter sz=18.0 bold=None color=333333 | RUN '●' font=Liter sz=18.0 bold=None color=333333 | RUN 'Spatial transcriptomics' font=Liter sz=18.0 bold=True color=333333 | RUN 'provides exceptional sub-cellular maps b' font=Liter sz=18.0 bold=None color=333333 | RUN '●' font=Liter sz=18.0 bold=None color=333333 | RUN 'Lack of infrastructure' font=Liter sz=18.0 bold=True color=333333 | RUN 'prevents routine hospital deployment of ' font=Liter sz=18.0 bold=None color=333333 | RUN '●' font=Liter sz=18.0 bold=None color=333333 | RUN 'Standard H&E slides' font=Liter sz=18.0 bold=True color=333333 | RUN 'are widely available but underutilized f' font=Liter sz=18.0 bold=None color=333333
+  [GROUP (6)] 'Group 29' | pos=(9.61,1.11) size=(7.89x4.17)
+  [AUTO_SHAPE (1)] 'Shape 12' | pos=(0.83,6.94) size=(16.11x1.53) | fill=FFFFFF
+  [AUTO_SHAPE (1)] 'Text 13' | pos=(1.11,7.06) size=(3.61x0.78) | fill=None | RUN '30' font=Liter sz=40.0 bold=True color=E07B54 | RUN 'Visium Slides' font=Liter sz=20.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Text 14' | pos=(1.11,7.89) size=(3.61x0.39) | fill=None | RUN 'Across 13 patients' font=Liter sz=14.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Shape 15' | pos=(5.00,7.22) size=(0.00x0.97) | fill=None
+  [AUTO_SHAPE (1)] 'Text 16' | pos=(5.28,7.06) size=(3.61x0.78) | fill=None | RUN '20,395' font=Liter sz=40.0 bold=True color=E07B54 | RUN 'Spots' font=Liter sz=20.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Text 17' | pos=(5.28,7.89) size=(3.61x0.39) | fill=None | RUN 'Total tissue spots analyzed' font=Liter sz=14.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Shape 18' | pos=(9.17,7.22) size=(0.00x0.97) | fill=None
+  [AUTO_SHAPE (1)] 'Text 19' | pos=(9.44,7.06) size=(3.61x0.78) | fill=None | RUN '17,893' font=Liter sz=40.0 bold=True color=E07B54 | RUN 'Genes' font=Liter sz=20.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Text 20' | pos=(9.44,7.89) size=(3.61x0.39) | fill=None | RUN 'Gene expression panel' font=Liter sz=14.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Shape 21' | pos=(13.33,7.22) size=(0.00x0.97) | fill=None
+  [AUTO_SHAPE (1)] 'Text 22' | pos=(13.61,7.06) size=(3.06x0.78) | fill=None | RUN '15' font=Liter sz=40.0 bold=True color=E07B54 | RUN 'Cell Types' font=Liter sz=20.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Text 23' | pos=(13.61,7.89) size=(3.06x0.39) | fill=None | RUN 'RCTD deconvolution' font=Liter sz=14.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Shape 24' | pos=(0.83,8.67) size=(16.11x1.11) | fill=D9E8F5
+  [AUTO_SHAPE (1)] 'Text 25' | pos=(1.17,8.78) size=(15.44x0.89) | fill=None | RUN 'Core Hypothesis:' font=Liter sz=None bold=True color=333333 | RUN 'Structural microenvironmental signatures' font=Liter sz=None bold=None color=333333
+  [AUTO_SHAPE (1)] 'Shape 26' | pos=(0.00,9.94) size=(17.78x0.06) | fill=E07B54
+
+===== SLIDE 4 =====
+  [AUTO_SHAPE (1)] 'Shape 0' | pos=(0.00,0.00) size=(17.78x0.83) | fill=2C5F8A
+  [FREEFORM (5)] 'Shape 1' | pos=(0.33,0.19) size=(0.44x0.44) | fill=FFFFFF
+  [AUTO_SHAPE (1)] 'Text 2' | pos=(0.97,0.00) size=(13.89x0.83) | fill=None | RUN 'Immediate Action Items & Timeline' font=Liter sz=28.0 bold=True color=FFFFFF
+  [AUTO_SHAPE (1)] 'Text 3' | pos=(16.67,0.00) size=(0.83x0.83) | fill=None | RUN '28' font=Liter sz=18.0 bold=None color=D9E8F5
+  [AUTO_SHAPE (1)] 'Shape 4' | pos=(0.83,1.17) size=(5.14x6.11) | fill=FFFFFF
+  [AUTO_SHAPE (1)] 'Shape 5' | pos=(0.83,1.17) size=(5.14x0.07) | fill=2C5F8A
+  [AUTO_SHAPE (1)] 'Shape 6' | pos=(1.11,1.44) size=(1.94x0.39) | fill=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 7' | pos=(1.11,1.44) size=(1.94x0.39) | fill=None | RUN 'STREAM 1' font=Liter sz=13.0 bold=True color=FFFFFF
+  [AUTO_SHAPE (1)] 'Text 8' | pos=(1.11,2.03) size=(4.58x0.39) | fill=None | RUN 'Code Refactoring' font=Liter sz=20.0 bold=True color=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 9' | pos=(1.11,2.56) size=(4.58x4.44) | fill=None | RUN '● Implement non-bottleneck Pc architectu' font=Liter sz=16.0 bold=None color=333333 | RUN 'Current: 15→128→64→256' font=Liter sz=15.0 bold=None color=8D8D8D | RUN 'Target: 15→64→128→256' font=Liter sz=15.0 bold=None color=8D8D8D | RUN '● Update to log-transformed temperatures' font=Liter sz=16.0 bold=None color=333333 | RUN 'self.log_tau instead of inline clamping' font=Liter sz=15.0 bold=None color=8D8D8D | RUN '● Re-run Phase A training' font=Liter sz=16.0 bold=None color=333333 | RUN 'Validate no regression in retrieval' font=Liter sz=15.0 bold=None color=8D8D8D | RUN 'Timeline: 1-2 weeks' font=Liter sz=16.0 bold=True color=E07B54
+  [AUTO_SHAPE (1)] 'Shape 10' | pos=(6.31,1.17) size=(5.14x6.11) | fill=FFFFFF
+  [AUTO_SHAPE (1)] 'Shape 11' | pos=(6.31,1.17) size=(5.14x0.07) | fill=E07B54
+  [AUTO_SHAPE (1)] 'Shape 12' | pos=(6.58,1.44) size=(1.94x0.39) | fill=E07B54
+  [AUTO_SHAPE (1)] 'Text 13' | pos=(6.58,1.44) size=(1.94x0.39) | fill=None | RUN 'STREAM 2' font=Liter sz=13.0 bold=True color=FFFFFF
+  [AUTO_SHAPE (1)] 'Text 14' | pos=(6.58,2.03) size=(4.58x0.39) | fill=None | RUN 'Data Verification' font=Liter sz=20.0 bold=True color=E07B54
+  [AUTO_SHAPE (1)] 'Text 15' | pos=(6.58,2.56) size=(4.58x4.44) | fill=None | RUN '● Confirm data' font=Liter sz=16.0 bold=None color=333333 | RUN 'filteration' font=Liter sz=16.0 bold=None color=333333 | RUN 'Confirm 0% mito is expected' font=Liter sz=15.0 bold=None color=8D8D8D | RUN '● Inspect raw counts for CDKN2A' font=Liter sz=16.0 bold=None color=333333 | RUN 'Check all spots + synonyms' font=Liter sz=15.0 bold=None color=8D8D8D | RUN '● Document filtering pipeline' font=Liter sz=16.0 bold=None color=333333 | RUN 'For reproducibility and methods' font=Liter sz=15.0 bold=None color=8D8D8D | RUN 'Timeline: Ongoing' font=Liter sz=16.0 bold=True color=E07B54
+  [AUTO_SHAPE (1)] 'Shape 16' | pos=(11.78,1.17) size=(5.17x6.11) | fill=FFFFFF
+  [AUTO_SHAPE (1)] 'Shape 17' | pos=(11.78,1.17) size=(5.17x0.07) | fill=2C5F8A
+  [AUTO_SHAPE (1)] 'Shape 18' | pos=(12.06,1.44) size=(1.94x0.39) | fill=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 19' | pos=(12.06,1.44) size=(1.94x0.39) | fill=None | RUN 'STREAM 3' font=Liter sz=13.0 bold=True color=FFFFFF
+  [AUTO_SHAPE (1)] 'Text 20' | pos=(12.06,2.03) size=(4.61x0.39) | fill=None | RUN 'Cohort Acquisition' font=Liter sz=20.0 bold=True color=2C5F8A
+  [AUTO_SHAPE (1)] 'Text 21' | pos=(12.06,2.56) size=(4.61x4.44) | fill=None | RUN '● Request 16 missing WSI images' font=Liter sz=16.0 bold=None color=333333 | RUN 'Patients 2, 6, 8, 9, 10, 12' font=Liter sz=15.0 bold=None color=8D8D8D | RUN '● Ensure 40x BIGTIFF format' font=Liter sz=16.0 bold=None color=333333 | RUN 'Pyramidal, tiled, JPEG' font=Liter sz=15.0 bold=None color=8D8D8D | RUN '● Update patient tracking matrix' font=Liter sz=16.0 bold=None color=333333 | RUN 'Resolve inconsistencies' font=Liter sz=15.0 bold=None color=8D8D8D | RUN 'Timeline: TBD (needs approval)' font=Liter sz=16.0 bold=True color=E07B54
+  [AUTO_SHAPE (1)] 'Shape 22' | pos=(0.83,7.56) size=(16.11x0.83) | fill=D9E8F5
+  [AUTO_SHAPE (1)] 'Text 23' | pos=(1.17,7.56) size=(15.14x0.83) | fill=None | RUN 'All three streams can proceed in paralle' font=Liter sz=16.0 bold=True color=333333 | RUN 'Stream 1 is internal and can start immed' font=Liter sz=16.0 bold=None color=333333
+  [AUTO_SHAPE (1)] 'Shape 24' | pos=(0.00,9.94) size=(17.78x0.06) | fill=E07B54
+
+===== SLIDE 5 =====
+  [AUTO_SHAPE (1)] 'Shape 0' | pos=(0.00,0.00) size=(17.78x0.08) | fill=2C5F8A
+  [GROUP (6)] 'Group 21' | pos=(3.33,3.65) size=(11.11x1.67)
+  [AUTO_SHAPE (1)] 'Text 17' | pos=(3.33,8.06) size=(11.11x0.56) | fill=None | RUN 'Spatial Transcriptomics Research | June ' font=Liter sz=16.0 bold=None color=8D8D8D
+  [AUTO_SHAPE (1)] 'Shape 18' | pos=(0.00,9.94) size=(17.78x0.06) | fill=E07B54

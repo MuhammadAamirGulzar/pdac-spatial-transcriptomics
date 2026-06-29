@@ -1,0 +1,10 @@
+STAGE 0 CONFOUND DIAGNOSTIC - VERDICT
+============================================
+HM hepatocyte frac mean = 0.140  vs  PT = 0.002
+corr(metastasis-direction, hepatocyte) : all spots = 0.402 | tumour-only = 0.073
+scVI HM/PT LOSO balanced acc : all = 0.434524949616079 | tumour-only = 0.4843574164536527
+RCTD LOSO acc : all = 0.809 | no-hepatocyte = 0.770
+
+READ: if r_all is high AND drops sharply tumour-only -> mu_HM axis is a
+liver-content confound; Phase B must restrict to tumour-only / residualise.
+If RCTD-no-hepatocyte acc collapses vs RCTD-all -> hepatocyte IS the driver.

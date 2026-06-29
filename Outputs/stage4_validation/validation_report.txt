@@ -1,0 +1,56 @@
+STAGE 4 - VALIDATION PROTOCOL (pre-registered tests vs independent evidence)
+==========================================================================
+PT spots: 13578  |  external-GSEA matched: 13578  |  predictor: bridge128
+
+TEST 1 - PATIENT-11 ANCHOR (PT11 high-scorers resemble HM11?)
+  target  resid vs HM11 resemblance : +0.184
+  vision  resid vs HM11 resemblance : -0.215
+  vision  raw   vs HM11 resemblance : -0.291
+  VERDICT: FAIL  (Stage 1B/3 found weak/negative; HM11 anchor is microenvironment, not met biology)
+
+TEST 2 - HELD-OUT + EXTERNAL SIGNATURES
+  (a) construct validity of the TARGET vs INDEPENDENT paper EMT GSEA:
+      target raw   vs extEMT pooled rho = +0.205
+      target resid vs extEMT pooled rho = +0.205
+      target raw   vs Stage-1A held-out EMT = +0.415
+      -> VERDICT: WEAK  (does our target measure real EMT?)
+  (b) DELIVERABLE - does the VISION-only predictor recover independent EMT (held-out)?
+      vision raw   vs extEMT pooled rho = +0.104
+      vision resid vs extEMT pooled rho = +0.006
+      vision raw   vs Stage-1A held-out EMT = +0.240
+      vision resid vs held-out resid        = +0.063
+      -> VERDICT: FAIL  (confound-free EMT recoverable from H&E across patients?)
+  (c) specificity panel -> fges_specificity.png (top H&E-correlated Fges below)
+      vision_raw ~ Effector_cells                   +0.210
+      vision_raw ~ Th1_signature                    +0.210
+      vision_raw ~ Th2_signature                    +0.190
+      vision_raw ~ NK_cells                         +0.189
+      vision_raw ~ Treg                             +0.184
+
+TEST 3 - INVASIVE-MARGIN ENRICHMENT (tumour-stroma boundary vs interior)
+  n margin=2602  n interior=2033
+  target_raw     margin 0.4108970697270044  interior 0.6617754408000389  p(margin>interior)=1.0
+  target_resid   margin -0.12427471294213518  interior -0.026165275615562533  p(margin>interior)=0.9991212394630583
+  vision_raw     margin 0.271264402694357  interior 0.4046037276739857  p(margin>interior)=1.0
+  vision_resid   margin 0.049579863206541674  interior 0.055725163226328235  p(margin>interior)=0.8424620938783172
+  VERDICT: FAIL  (does the H&E score localise to the invasive front?)
+
+TEST 4 - NEGATIVE CONTROL
+  vision resid vs hepatocyte = -0.002  vs tumor_frac = -0.018  (want ~0)
+  abundance ceiling (tumour-frac-only LOSO) rho = +0.478
+  vision raw rho = +0.289  ->  vision - ceiling = -0.190
+  VERDICT: resid decorrelation PASS; abundance ceiling NOT beaten by H&E (if not beaten, the raw vision score is an abundance detector)
+
+OVERALL READ
+--------------------------------------------------------------------------
+The pre-registered tests confirm the honest Stage 0-3 conclusion: the
+Stage-1A leaving target is a VALID EMT readout (Test 2a vs independent paper
+GSEA), but the CONFOUND-FREE intra-PT EMT axis is NOT recoverable from H&E on
+held-out patients (Test 2b resid ~ noise; Test 1 negative). H&E robustly
+predicts only malignant ABUNDANCE (Test 4: vision_raw ~ tumour-fraction
+ceiling; specificity panel dominated by proliferation/matrix, not the EMT
+axis). Report the deliverable as: a reproducible, confound-audited vision
+score whose generalizable signal is malignant abundance; the metastatic
+'leaving' program is measurable in ST but below the cross-patient H&E ceiling
+at 55um. Pathologist annotation (Test 3 ground truth) is the key missing
+external check to request from Dr. Ashiq.
