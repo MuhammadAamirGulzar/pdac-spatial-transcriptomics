@@ -1,12 +1,12 @@
 # PDAC ST + FM — Methodological Review & Staged Execution Plan
 
 > Self-contained plan written after a counter-expert review of the project.
-> Intended to be opened in a **fresh chat session** and executed **one stage at a time**.
+> Intended to be executed **one stage at a time**, reading top-to-bottom.
 > Read this top-to-bottom before starting; each stage has a decision gate.
 
 ---
 
-## 0. Context recap (so a fresh session has everything)
+## 0. Context recap
 
 **Goal:** Identify which primary-tumour (PT) spots are *liver-metastasis-prone*, using
 Histopathology FM image embeddings augmented by Spatial Transcriptomics (ST). Hard
@@ -265,7 +265,7 @@ tissue-confound classifier output and with RCTD hepatocyte/liver content. The sc
 
 ---
 
-## Execution order (one chat session per stage recommended)
+## Execution order
 
 ```
 Stage 0  (laptop)  → confound diagnostic        ← START HERE, cheap insurance
