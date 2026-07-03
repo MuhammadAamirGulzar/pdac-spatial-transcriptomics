@@ -1,0 +1,385 @@
+{
+  "reduced_panels": {
+    "3": {
+      "genes": [
+        "SERPINE1",
+        "S100A4",
+        "COL5A1"
+      ],
+      "corr_vs_full_target": 0.5174234078222274,
+      "corr_vs_heldout": 0.058349898768023434
+    },
+    "5": {
+      "genes": [
+        "SERPINE1",
+        "S100A4",
+        "COL5A1",
+        "LAMC2",
+        "FN1"
+      ],
+      "corr_vs_full_target": 0.5491774790169267,
+      "corr_vs_heldout": 0.07421180324068201
+    },
+    "8": {
+      "genes": [
+        "SERPINE1",
+        "S100A4",
+        "COL5A1",
+        "LAMC2",
+        "FN1",
+        "TIMP1",
+        "LOXL2",
+        "TGFB1"
+      ],
+      "corr_vs_full_target": 0.6097303884681613,
+      "corr_vs_heldout": 0.0868832717935675
+    },
+    "19": {
+      "genes": [
+        "SERPINE1",
+        "S100A4",
+        "COL5A1",
+        "LAMC2",
+        "FN1",
+        "TIMP1",
+        "LOXL2",
+        "TGFB1",
+        "LOX",
+        "TNC",
+        "ZEB2",
+        "COL1A1",
+        "ITGB6",
+        "TGFBR1",
+        "COL3A1",
+        "ZEB1",
+        "CDH2",
+        "SNAI1",
+        "MMP1"
+      ],
+      "corr_vs_full_target": 0.6625918775537052,
+      "corr_vs_heldout": 0.08630289669593513
+    }
+  },
+  "core_ranked": [
+    {
+      "gene": "SERPINE1",
+      "corr_resid": 0.3883354961872101,
+      "corr_raw": 0.40409260988235474,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "S100A4",
+      "corr_resid": 0.29646119475364685,
+      "corr_raw": 0.2918887734413147,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "COL5A1",
+      "corr_resid": 0.28405922651290894,
+      "corr_raw": 0.45777034759521484,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "LAMC2",
+      "corr_resid": 0.2548856735229492,
+      "corr_raw": 0.17308004200458527,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "FN1",
+      "corr_resid": 0.25337207317352295,
+      "corr_raw": 0.586449384689331,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "TIMP1",
+      "corr_resid": 0.24708759784698486,
+      "corr_raw": 0.21373063325881958,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "LOXL2",
+      "corr_resid": 0.23236201703548431,
+      "corr_raw": 0.31566423177719116,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "TGFB1",
+      "corr_resid": 0.2229265570640564,
+      "corr_raw": 0.17470809817314148,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "LOX",
+      "corr_resid": 0.21890319883823395,
+      "corr_raw": 0.2614451050758362,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "TNC",
+      "corr_resid": 0.21400511264801025,
+      "corr_raw": 0.0986025482416153,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "ZEB2",
+      "corr_resid": 0.2006516456604004,
+      "corr_raw": 0.1416446715593338,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "COL1A1",
+      "corr_resid": 0.2002185583114624,
+      "corr_raw": 0.6185743808746338,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "ITGB6",
+      "corr_resid": 0.18218404054641724,
+      "corr_raw": 0.09777335822582245,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "TGFBR1",
+      "corr_resid": 0.15500719845294952,
+      "corr_raw": 0.13644124567508698,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "COL3A1",
+      "corr_resid": 0.153854638338089,
+      "corr_raw": 0.5835770964622498,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "ZEB1",
+      "corr_resid": 0.1452775001525879,
+      "corr_raw": 0.13325558602809906,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "CDH2",
+      "corr_resid": 0.11926870793104172,
+      "corr_raw": 0.0888058990240097,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "SNAI1",
+      "corr_resid": 0.08824720978736877,
+      "corr_raw": 0.08838355541229248,
+      "sign_agreement": 4.0
+    },
+    {
+      "gene": "MMP1",
+      "corr_resid": 0.07235535234212875,
+      "corr_raw": 0.04050620645284653,
+      "sign_agreement": 4.0
+    }
+  ],
+  "top_genes": [
+    {
+      "gene": "SERPINE1",
+      "corr_resid": 0.3883354961872101,
+      "in_core": true,
+      "in_heldout": false
+    },
+    {
+      "gene": "S100A4",
+      "corr_resid": 0.29646119475364685,
+      "in_core": true,
+      "in_heldout": false
+    },
+    {
+      "gene": "COL5A1",
+      "corr_resid": 0.28405922651290894,
+      "in_core": true,
+      "in_heldout": false
+    },
+    {
+      "gene": "LAMC2",
+      "corr_resid": 0.2548856735229492,
+      "in_core": true,
+      "in_heldout": false
+    },
+    {
+      "gene": "FN1",
+      "corr_resid": 0.25337207317352295,
+      "in_core": true,
+      "in_heldout": false
+    },
+    {
+      "gene": "TIMP1",
+      "corr_resid": 0.24708759784698486,
+      "in_core": true,
+      "in_heldout": false
+    },
+    {
+      "gene": "LOXL2",
+      "corr_resid": 0.23236201703548431,
+      "in_core": true,
+      "in_heldout": false
+    },
+    {
+      "gene": "TGFB1",
+      "corr_resid": 0.2229265570640564,
+      "in_core": true,
+      "in_heldout": false
+    },
+    {
+      "gene": "LOX",
+      "corr_resid": 0.21890319883823395,
+      "in_core": true,
+      "in_heldout": false
+    },
+    {
+      "gene": "TNC",
+      "corr_resid": 0.21400511264801025,
+      "in_core": true,
+      "in_heldout": false
+    },
+    {
+      "gene": "ZEB2",
+      "corr_resid": 0.2006516456604004,
+      "in_core": true,
+      "in_heldout": false
+    },
+    {
+      "gene": "COL1A1",
+      "corr_resid": 0.2002185583114624,
+      "in_core": true,
+      "in_heldout": false
+    },
+    {
+      "gene": "ITGB6",
+      "corr_resid": 0.18218404054641724,
+      "in_core": true,
+      "in_heldout": false
+    },
+    {
+      "gene": "TGFBR1",
+      "corr_resid": 0.15500719845294952,
+      "in_core": true,
+      "in_heldout": false
+    },
+    {
+      "gene": "COL3A1",
+      "corr_resid": 0.153854638338089,
+      "in_core": true,
+      "in_heldout": false
+    }
+  ],
+  "bottom_genes": [
+    {
+      "gene": "SEMA6A",
+      "corr_resid": -0.05712432041764259,
+      "is_epithelial": false
+    },
+    {
+      "gene": "MIER1",
+      "corr_resid": -0.05567603558301926,
+      "is_epithelial": false
+    },
+    {
+      "gene": "RACK1",
+      "corr_resid": -0.05482134222984314,
+      "is_epithelial": false
+    },
+    {
+      "gene": "HIST1H4D",
+      "corr_resid": -0.0533854104578495,
+      "is_epithelial": false
+    },
+    {
+      "gene": "TESC",
+      "corr_resid": -0.05308662727475166,
+      "is_epithelial": false
+    },
+    {
+      "gene": "SLC25A3",
+      "corr_resid": -0.05277472361922264,
+      "is_epithelial": false
+    },
+    {
+      "gene": "HIP1R",
+      "corr_resid": -0.052352726459503174,
+      "is_epithelial": false
+    },
+    {
+      "gene": "HSP90AB1",
+      "corr_resid": -0.05166320130228996,
+      "is_epithelial": false
+    },
+    {
+      "gene": "GRAMD1B",
+      "corr_resid": -0.0513167567551136,
+      "is_epithelial": false
+    },
+    {
+      "gene": "LUC7L3",
+      "corr_resid": -0.04977726191282272,
+      "is_epithelial": false
+    },
+    {
+      "gene": "C1orf21",
+      "corr_resid": -0.04941223934292793,
+      "is_epithelial": false
+    },
+    {
+      "gene": "ALDH3A2",
+      "corr_resid": -0.04940972104668617,
+      "is_epithelial": false
+    },
+    {
+      "gene": "CDCA7",
+      "corr_resid": -0.04937665909528732,
+      "is_epithelial": false
+    },
+    {
+      "gene": "BST2",
+      "corr_resid": -0.0481804683804512,
+      "is_epithelial": false
+    },
+    {
+      "gene": "FCGBP",
+      "corr_resid": -0.0468897707760334,
+      "is_epithelial": false
+    }
+  ],
+  "epithelial": [
+    {
+      "gene": "EPCAM",
+      "corr_resid": 0.00174048263579607,
+      "sign_agreement": 0.0
+    },
+    {
+      "gene": "CLDN4",
+      "corr_resid": 0.010361040942370892,
+      "sign_agreement": 0.0
+    },
+    {
+      "gene": "CLDN7",
+      "corr_resid": 0.015591097064316273,
+      "sign_agreement": 0.0
+    },
+    {
+      "gene": "CDH1",
+      "corr_resid": 0.019085299223661423,
+      "sign_agreement": 2.0
+    },
+    {
+      "gene": "KRT18",
+      "corr_resid": 0.027774084359407425,
+      "sign_agreement": 2.0
+    },
+    {
+      "gene": "KRT8",
+      "corr_resid": 0.03176414966583252,
+      "sign_agreement": 0.0
+    },
+    {
+      "gene": "KRT7",
+      "corr_resid": 0.034643881022930145,
+      "sign_agreement": 0.0
+    }
+  ]
+}

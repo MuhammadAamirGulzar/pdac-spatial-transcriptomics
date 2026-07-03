@@ -1,36 +1,41 @@
-# API keys — never commit
+# ── Secrets ───────────────────────────────────────────────────────────────────
 keys.txt
 
-# All dataset files (large binary/data — on Kaggle, not here)
+# ── Dataset (hosted on Kaggle — not stored here) ──────────────────────────────
 dataset/
 
-# Jupyter checkpoint folders
+# ── Jupyter ───────────────────────────────────────────────────────────────────
 .ipynb_checkpoints/
 **/.ipynb_checkpoints/
 
-# Python cache
+# ── Python cache ──────────────────────────────────────────────────────────────
 __pycache__/
 *.pyc
 *.pyo
 
-# Model checkpoints and large binary outputs
-Outputs/Plots/
-Outputs/bridge_ckpts/
-Outputs/stage2/
+# ── Large binary / model files ────────────────────────────────────────────────
 *.pt
 *.pth
 *.ckpt
 *.npy
+*.h5
+*.h5ad
+*.pkl
+*.zip
 
-# Redundant zip of CSVs already tracked individually
-Outputs/Patient-Sample-Information.zip
+# ── Model training output dirs (checkpoints + per-fold tensors) ───────────────
+Outputs/bridge_ckpts/
+Outputs/stage2/
+Outputs/Plots/
 
-# Auto-generated tissue thumbnail cache (derived from dataset)
+# ── Auto-generated caches (derived from dataset, reproducible) ────────────────
+docs/presentation/_tissue_cache/
 presentation/_tissue_cache/
 
-# Claude Code local settings
-.claude/
+# ── Internal build artifacts ──────────────────────────────────────────────────
+docs/presentation/_template_dump.txt
 
-# OS artifacts
+# ── IDE / OS ──────────────────────────────────────────────────────────────────
+.claude/
 .DS_Store
 Thumbs.db
