@@ -12,8 +12,10 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import _tissue
 
-ROOT = os.path.dirname(os.path.abspath(__file__)); PROJ = os.path.dirname(ROOT)
-OUT = os.path.join(PROJ, "Outputs", "presentation_figures"); os.makedirs(OUT, exist_ok=True)
+ROOT = os.path.dirname(os.path.abspath(__file__)); PROJ = os.path.dirname(os.path.dirname(ROOT))
+SLIDE = os.environ.get("PPTX_SLIDE") == "1"
+OUT = os.path.join(PROJ, "Outputs", "presentation_figures", "slides" if SLIDE else "")
+os.makedirs(OUT, exist_ok=True)
 PATCH = os.path.join(PROJ, "dataset", ".png patches", ".png patches", "IU_PDA_T3")
 BLUE, ORANGE = "#2C5F8A", "#E07B54"
 
@@ -43,21 +45,36 @@ def group_means():
 
 def patch_img(stem): return np.asarray(Image.open(os.path.join(PATCH, stem + ".png")).convert("RGB"))
 
+def spot_px():
+    """imagerow/imagecol for the HIGH/LOW spots on the real T3 WSI (via barcode)."""
+    lead = pd.read_csv(os.path.join(PROJ, "Outputs/stage1a_leaving_program/leaving_program_scores.csv"))
+    coord = pd.read_csv(os.path.join(PROJ, "Outputs/Patient-Sample-Information/spot_spatial_coordinates.csv"))
+    coord = coord[coord["image"] == "IU_PDA_T3"].set_index("spot_barcode")
+    bc = lead.set_index("patch_stem")["barcode"]
+    out = {}
+    for tag, sp in [("HIGH", HIGH), ("LOW", LOW)]:
+        b = bc.get(sp["stem"])
+        if b in coord.index:
+            out[tag] = (float(coord.loc[b, "imagecol"]), float(coord.loc[b, "imagerow"]))
+    return out
+
 def build():
     res = group_means()
-    img, ext = _tissue.render_he("IU_PDA_T3")
+    wsi, scale = _tissue.render_wsi("IU_PDA_T3", max_dim=2000)
+    px = spot_px()
     fig = plt.figure(figsize=(17.2, 9.2))
     gs = fig.add_gridspec(2, 3, width_ratios=[1.05, 0.6, 1.5], height_ratios=[1, 1],
                           hspace=0.30, wspace=0.26, left=0.035, right=0.99, top=0.83, bottom=0.06)
 
-    axm = fig.add_subplot(gs[:, 0]); axm.imshow(img, extent=ext, aspect="equal")
-    for sp, c, lab in [(HIGH, ORANGE, "high"), (LOW, BLUE, "low")]:
-        x, y = _tissue.phys_xy(sp["row"], sp["col"])
-        axm.scatter([x], [y], s=700, facecolors="none", edgecolors=c, linewidths=3.4)
+    axm = fig.add_subplot(gs[:, 0]); axm.imshow(wsi); axm.set_aspect("equal")
+    for tag, sp, c, lab in [("HIGH", HIGH, ORANGE, "high"), ("LOW", LOW, BLUE, "low")]:
+        if tag not in px: continue
+        x, y = px[tag][0]*scale, px[tag][1]*scale
+        axm.scatter([x], [y], s=520, facecolors="none", edgecolors=c, linewidths=3.4)
         axm.annotate(lab, (x, y), xytext=(15, 13), textcoords="offset points",
                      fontsize=12.5, fontweight="bold", color=c)
     axm.set_xticks([]); axm.set_yticks([])
-    axm.set_title("1.  Where the two spots sit in tumour T3", fontsize=13.5, fontweight="bold", color=BLUE)
+    axm.set_title("1.  Where the two spots sit in tumour T3  (real H&E)", fontsize=13.5, fontweight="bold", color=BLUE)
 
     for r, sp, c, name in [(0, HIGH, ORANGE, "HIGH score spot"), (1, LOW, BLUE, "LOW score spot")]:
         axp = fig.add_subplot(gs[r, 1]); axp.imshow(patch_img(sp["stem"]))

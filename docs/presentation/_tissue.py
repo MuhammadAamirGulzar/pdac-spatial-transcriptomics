@@ -61,49 +61,62 @@ def render_he(sample, t=14, force=False):
     return canvas, np.array(extent, float)
 
 # --- REAL whole-slide image (WSI) support -------------------------------------
-# The per-sample H&E whole-slide overlays live in dataset/patch overlay/{sample}/
-# {sample}_overlay.tiff at full resolution; spot pixel coords are in
-# Outputs/Patient-Sample-Information/spot_spatial_coordinates.csv (imagerow/imagecol,
-# same pixel space as the overlay). Prefer these over the patch-mosaic render_he().
+# Two sources per sample:
+#  * CLEAN downsampled H&E: dataset/WSI images/image_{sample}.png (~2000px, clearest
+#    tissue, ALL 6 samples incl. T3) -> used for overview panels (render_wsi).
+#  * FULL-RES overlay: dataset/patch overlay/{sample}/{sample}_overlay.tiff (~22k px,
+#    has faint Visium fiducial frame) -> used for sharp zoom crops (crop_wsi).
+# Spot pixel coords (imagerow/imagecol) live in spot_spatial_coordinates.csv in the
+# FULL-RES space; multiply by the returned `scale` to plot on either render.
 OVERLAY_DIR = os.path.join(PROJ, "dataset", "patch overlay")
+WSI_DIR = os.path.join(PROJ, "dataset", "WSI images")
+META_DIR = os.path.join(PROJ, "dataset", ".png patches", ".png patches")
 COORD_CSV = os.path.join(PROJ, "Outputs", "Patient-Sample-Information", "spot_spatial_coordinates.csv")
-# T3's WSI is not on this machine (lives on external drive) -> falls back to render_he.
-HAS_WSI = {"IU_PDA_T1", "IU_PDA_T4", "IU_PDA_T11", "IU_PDA_HM11", "IU_PDA_HM13"}
+HAS_WSI = {"IU_PDA_T1", "IU_PDA_T3", "IU_PDA_T4", "IU_PDA_T11", "IU_PDA_HM11", "IU_PDA_HM13"}
 
 def has_wsi(sample):
-    return os.path.exists(os.path.join(OVERLAY_DIR, sample, f"{sample}_overlay.tiff"))
+    return os.path.exists(os.path.join(WSI_DIR, f"image_{sample}.png"))
 
-def render_wsi(sample, max_dim=1800, force=False):
-    """Return (img_uint8 HxWx3, scale) for the REAL whole-slide H&E overlay,
-    downsampled so max(H,W)==max_dim. scale maps full-res pixels -> display pixels;
-    plot a spot at (imagecol*scale, imagerow*scale) with default imshow origin."""
+def wsi_full_dims(sample):
+    """Full-res WSI (W,H) in pixels from the patch metadata (the coord space)."""
+    import json
+    m = json.load(open(os.path.join(META_DIR, sample, "patches_metadata.json")))["image_info"]
+    w, h = m["wsi_dimensions"].split(" x ")
+    return int(w), int(h)
+
+def render_wsi(sample, max_dim=2000, force=False):
+    """Return (img_uint8 HxWx3, scale) for the CLEAN whole-slide H&E PNG. `scale` maps
+    full-res pixel coords -> this image's pixels; plot a spot at
+    (imagecol*scale, imagerow*scale) with default imshow origin."""
     Image.MAX_IMAGE_PIXELS = None
-    cache_png = os.path.join(CACHE, f"{sample}_wsi{max_dim}.png")
-    cache_s = os.path.join(CACHE, f"{sample}_wsi{max_dim}_scale.npy")
-    if os.path.exists(cache_png) and os.path.exists(cache_s) and not force:
-        return np.array(Image.open(cache_png)), float(np.load(cache_s))
-    p = os.path.join(OVERLAY_DIR, sample, f"{sample}_overlay.tiff")
+    p = os.path.join(WSI_DIR, f"image_{sample}.png")
     if not os.path.exists(p):
-        raise FileNotFoundError(f"no WSI overlay for {sample}")
-    im = Image.open(p).convert("RGB"); W, H = im.size
-    scale = max_dim / max(W, H)
-    disp = im.resize((int(round(W * scale)), int(round(H * scale))), Image.BILINEAR)
-    arr = np.asarray(disp)
-    Image.fromarray(arr).save(cache_png); np.save(cache_s, np.array(scale))
-    return arr, float(scale)
+        raise FileNotFoundError(f"no clean WSI png for {sample}")
+    im = Image.open(p).convert("RGB")
+    if max(im.size) > max_dim:
+        r = max_dim / max(im.size)
+        im = im.resize((int(im.size[0]*r), int(im.size[1]*r)), Image.BILINEAR)
+    fw, fh = wsi_full_dims(sample)
+    scale = im.size[0] / fw            # px-per-fullres-px (uniform; aspect preserved)
+    return np.asarray(im), float(scale)
 
 def crop_wsi(sample, x0, y0, x1, y1, out_px=900):
-    """Full-resolution crop of the WSI overlay in the box [x0,x1]x[y0,y1] (full-res
-    pixel coords), resized so its long side == out_px. Returns (img_uint8, box) for a
-    sharp zoom-lens inset. Plot a spot inside at ((imagecol-x0)*s, (imagerow-y0)*s),
-    s = out_px/max(x1-x0, y1-y0)."""
+    """Crop the WSI in the box [x0,x1]x[y0,y1] (given in FULL-RES pixel coords),
+    resized so its long side == out_px. Uses the full-res overlay for sharpness;
+    falls back to the clean PNG (e.g. T3, no overlay). Returns (img_uint8, box) where
+    box=(x0,y0,x1,y1,s); plot a spot inside at ((imagecol-x0)*s, (imagerow-y0)*s)."""
     Image.MAX_IMAGE_PIXELS = None
-    p = os.path.join(OVERLAY_DIR, sample, f"{sample}_overlay.tiff")
-    im = Image.open(p).convert("RGB")
     x0, y0, x1, y1 = int(max(0, x0)), int(max(0, y0)), int(x1), int(y1)
-    crop = im.crop((x0, y0, x1, y1))
+    ov = os.path.join(OVERLAY_DIR, sample, f"{sample}_overlay.tiff")
+    if os.path.exists(ov):
+        im = Image.open(ov).convert("RGB")
+        crop = im.crop((x0, y0, x1, y1))
+    else:                                  # fallback: clean PNG, rescale box to png space
+        im = Image.open(os.path.join(WSI_DIR, f"image_{sample}.png")).convert("RGB")
+        fw, fh = wsi_full_dims(sample); r = im.size[0] / fw
+        crop = im.crop((int(x0*r), int(y0*r), int(x1*r), int(y1*r)))
     s = out_px / max(x1 - x0, y1 - y0)
-    crop = crop.resize((int((x1 - x0) * s), int((y1 - y0) * s)), Image.BILINEAR)
+    crop = crop.resize((max(1, int((x1 - x0) * s)), max(1, int((y1 - y0) * s))), Image.BILINEAR)
     return np.asarray(crop), (x0, y0, x1, y1, s)
 
 def wsi_spot_xy(sample, barcodes):

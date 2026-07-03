@@ -195,30 +195,40 @@ divider("02", "Building a signal we can trust", "A signal we can trust",
         "The confound we avoided, the program we measure, and one spot worked through end to end",
         "Before trusting any score we had to rule out the obvious trap, then define a signal inside the primary "
         "tumour, then show one spot end to end so it is not a black box.")
-fig_slide("Liver-cell contamination — how much, and exactly where", 6, os.path.join(SL, "figL1_contamination_where.png"),
-          "Metastasis spots average ~15% liver cells versus ~0% in primary tumour.  On the real slide, zooming into a liver-rich pocket shows the tumour is physically embedded in normal liver.",
-          "Before trusting any HM-versus-PT signal we quantified the obvious trap. Averaged over all spots, liver metastasis spots are "
-          "about fifteen percent liver cells, thirteen thousand five hundred primary spots almost none. On the real HM11 whole slide, "
-          "each spot is coloured by its liver-cell content, and when we zoom into a bright pocket the spots sit squarely on tissue that "
-          "looks like normal liver. The metastatic tumour is physically embedded in the liver it landed in.")
-fig_slide("Proof it is really liver — the cells and the genes agree", 7, os.path.join(SL, "figL2_liver_proof.png"),
+fig_slide("Liver contamination: how much, and why it fakes a signal", 6, os.path.join(SL, "figLsum_howmuch_removable.png"),
+          "Metastasis spots average ~15% liver cells vs ~0% in primary.  That liver content IS the naive 'metastasis' axis (corr 0.40), and restricting to tumour-only spots removes it (0.07).",
+          "Two panels, one message. Left, how much: liver metastasis spots are about fifteen percent liver cells, the thirteen thousand "
+          "five hundred primary spots almost none. Right, why it matters: the naive metastasis direction correlates zero point four with "
+          "that liver content across all eighteen thousand spots, and restricting to the four thousand eight hundred tumour-dominated "
+          "spots collapses it to zero point zero seven. Most of the apparent metastasis signal was simply the liver the tumour sits in.")
+fig_slide("Where the liver cells are — metastasis HM11", 7, os.path.join(SL, "figLwhere_HM11.png"),
+          "On the real HM11 slide, the liver-rich zone zooms to classic liver parenchyma (cords + sinusoids); the tumour zone is dense desmoplasia with no liver.",
+          "Here is the contamination on the real HM11 whole slide, spots coloured by liver-cell content. Zoom into the bright pocket, cyan "
+          "box, and the tissue has the cords and sinusoids of normal liver. Zoom into the tumour zone, green box, and it is dense malignant "
+          "and fibrous tissue with no liver. The rings are left unfilled so you can see the underlying H and E. The tumour is physically "
+          "embedded in the liver it landed in.")
+fig_slide("Where the liver cells are — metastasis HM13", 8, os.path.join(SL, "figLwhere_HM13.png"),
+          "The second metastasis tells the same story, with even more liver content (mean ~21%): a clear liver zone and a clear tumour zone on the real tissue.",
+          "The second metastasis, HM13, tells the same story, and it actually has more liver, about twenty one percent on average. Same "
+          "layout, the liver-rich zone zooms to liver parenchyma and the tumour zone to malignant tissue. Two independent metastasis "
+          "slides, the same liver contamination, which is exactly the confound we must avoid.")
+fig_slide("The primary tumour has essentially no liver", 9, os.path.join(SL, "figLwhere_T1.png"),
+          "By contrast, the primary tumour is all tumour/pancreas — the maximum liver-cell fraction anywhere is ~22%, and typical tissue is malignant desmoplasia.  The confound is metastasis-only.",
+          "By contrast, the primary tumour. Every spot is dark, near zero liver content. Even the single most liver-like spot is barely "
+          "any, and the zoomed tissue is malignant and desmoplastic, not liver. This is the clean control. The liver confound lives only "
+          "in the metastasis slides, which is precisely why we define the target inside the primary tumour.")
+fig_slide("Proof it is really liver — the cells and the genes agree", 10, os.path.join(SL, "figL2_liver_proof.png"),
           "The same spots carry liver cells AND liver genes (ALB, TTR, APOA1).  Cell deconvolution and gene expression agree at r = 0.93.",
-          "This is the proof it is liver and not a deconvolution quirk. Two liver-rich metastasis spots and two primary-tumour spots, "
-          "each with its own H and E. The metastasis spots strongly express the classic hepatocyte genes, albumin, transthyretin, "
-          "APOA1, while the tumour spots show essentially none. And across every HM11 spot, the cell-composition liver fraction and the "
-          "liver-gene score agree almost perfectly, correlation zero point nine three. The liver contamination is real biology.")
-fig_slide("Two metastases do not resemble each other", 8, os.path.join(SL, "figL3_generalization.png"),
+          "And the proof it is liver and not a deconvolution quirk. Group means over all liver-rich metastasis spots versus all tumour "
+          "spots: the liver spots strongly express the classic hepatocyte genes, albumin, transthyretin, APOA1, while tumour spots show "
+          "essentially none. Across every HM11 spot the cell-composition liver fraction and the liver-gene score agree almost perfectly, "
+          "correlation zero point nine three. The liver contamination is real biology.")
+fig_slide("Two metastases do not resemble each other", 11, os.path.join(SL, "figL3_generalization.png"),
           "Hold out one sample and predict it from the rest: primary tumours generalise (93–100%), but neither liver metastasis is recovered from the other (0%).",
-          "The second problem is patient number. Leave one sample out and ask whether the model recognises its tumour type from the "
-          "others. Primary tumours generalise, ninety three to one hundred percent. But each liver metastasis is not recovered from the "
-          "other at all, zero percent. With only two metastasis patients there is no transferable, tumour-intrinsic metastasis signature "
-          "to learn. Together with the liver confound, this is why we do not model the metastasis tissue directly.")
-fig_slide("The metastasis axis is mostly liver — and removable", 9, os.path.join(SL, "figL4_axis_is_liver.png"),
-          "Across all 18,859 spots the naive metastasis axis correlates 0.40 with liver content; restricting to the 4,851 tumour-only spots collapses it to 0.07.",
-          "Putting it together. The naive metastasis direction correlates zero point four with liver-cell content across all eighteen "
-          "thousand spots from all six samples. Restrict to the four thousand eight hundred tumour-dominated spots, dropping the "
-          "liver-heavy non-tumour spots, and that correlation collapses to zero point zero seven. Most of the apparent metastasis signal "
-          "was simply the liver the tumour sits in. So we define the target inside the primary tumour instead, avoiding the confound entirely.")
+          "One more problem, patient number. Leave one sample out and ask whether the model recognises its tumour type from the others. "
+          "Primary tumours generalise, ninety three to one hundred percent. But each liver metastasis is not recovered from the other at "
+          "all, zero percent. With only two metastasis patients there is no transferable metastasis signature to learn. Together with the "
+          "liver confound, this is why we do not model the metastasis tissue directly.")
 fig_slide("A movement and invasion program inside the tumour", 7, os.path.join(SL, "fig3_stage1a_leaving_maps.png"),
           "High score regions cluster together in every tumour, like invasive fronts, not random noise.",
           "This is the leaving program. For each tumour, the H and E is on the left and the score is on the right, on the same tissue. "
@@ -259,11 +269,17 @@ fig_slide("What an H&E slide can and cannot tell us", 13, os.path.join(SL, "fig5
           "effect, the finer movement signal drops to the noise floor. A trivial tumour amount predictor actually beats our model. "
           "And adding the transcriptomic bridge did not beat the foundation model on its own. So today the slide mainly senses "
           "tumour amount, not the fine metastatic state. This is the honest ceiling, and it is better to know it now.")
-fig_slide("The same result, drawn on the tissue", 14, os.path.join(SL, "fig6_stage3_spatial_prediction.png"),
-          "The H&E prediction follows the broad pattern and smooths away the finer detail.",
-          "The same story as a picture. For two tumours, the actual score and the score predicted from the slide alone. "
-          "The prediction follows the broad high and low zones, which track tumour density, and it smooths away the finer "
-          "structure. This is the visual version of the ceiling on the previous slide.")
+fig_slide("Predicted vs real on the tissue — tumour T4", 14, os.path.join(SL, "figP_T4.png"),
+          "Whole slide, actual score, and H&E prediction.  Zooming a green (agree) and a red (disagree) region shows the prediction tracks broad zonation but misses finer structure.",
+          "The same story on the real tissue, one tumour at a time. T4: the whole slide, the actual transcriptomic score, and the score "
+          "predicted from H and E alone. The green box marks a region where the two agree, the red box a region where they disagree. "
+          "Zoom in and the thin rings, actual on the left, predicted on the right, match in the agree region and flip colour in the "
+          "disagree region. The prediction follows the broad high and low zones but misses the finer structure.")
+fig_slide("Predicted vs real on the tissue — tumour T1", 15, os.path.join(SL, "figP_T1.png"),
+          "The second tumour tells the same story: broad zonation is captured from H&E, fine structure is not — the agree/disagree zooms make it concrete.",
+          "The second tumour, T1, tells the same story. Broad zonation is recovered from the slide, but where we zoom into a disagree "
+          "region the predicted rings no longer match the actual ones. This is the visual version of the ceiling, made checkable spot "
+          "by spot on the real tissue.")
 
 divider("04", "Where we stand", "What we learned and next",
         "An honest scorecard, and the steps that would push this further",
