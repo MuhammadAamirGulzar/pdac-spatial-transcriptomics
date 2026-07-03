@@ -1,0 +1,17 @@
+{
+  "fold_best_val_losses": [
+    5.980975223465614,
+    6.079754065986498,
+    5.909840800644993,
+    6.120561430711701
+  ],
+  "fold_best_epochs": [
+    13,
+    5,
+    18,
+    5
+  ],
+  "mean_val_loss": 6.022782880202202,
+  "final_train_epochs": 10,
+  "notes": "Phase A foundation space locked. Complete leave-patient-out structure exported cleanly."
+}

@@ -23,10 +23,15 @@ __pycache__/
 *.pkl
 *.zip
 
-# ── Model training output dirs (checkpoints + per-fold tensors) ───────────────
-Outputs/bridge_ckpts/
-Outputs/stage2/
+# ── Intermediate training artifacts (per-fold, not needed to reproduce results) ──
 Outputs/Plots/
+Outputs/bridge_ckpts/
+
+# Stage 2: exclude per-fold tensors but keep final trained models
+# (negation overrides the *.pt rule above for final_model files only)
+!Outputs/stage2/**/final_model.pt
+!Outputs/stage2/**/final_model_A.pt
+!Outputs/stage2/**/final_model_B.pt
 
 # ── Auto-generated caches (derived from dataset, reproducible) ────────────────
 docs/presentation/_tissue_cache/
