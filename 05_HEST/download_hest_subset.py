@@ -81,6 +81,15 @@ def main():
     ap.add_argument("--organ", help="e.g. Pancreas  (matches the 'organ' column)")
     ap.add_argument("--oncotree", help="e.g. PAAD  (matches 'oncotree_code')")
     ap.add_argument("--ids", nargs="*", help="explicit sample ids, e.g. TENX123 INT5")
+    ap.add_argument("--ids-file", help="file with one sample id per line")
+    ap.add_argument("--organs", nargs="*",
+                    help="several organs at once, e.g. --organs Bowel Prostate Kidney")
+    ap.add_argument("--cancer-only", action="store_true",
+                    help="restrict to disease_state Cancer/Tumor")
+    ap.add_argument("--visium-only", action="store_true",
+                    help="restrict to st_technology == Visium (avoids mixing platforms)")
+    ap.add_argument("--species", default=None,
+                    help="e.g. 'Homo sapiens' — mixing species is a confound, set this")
     ap.add_argument("--with-thumbnails", action="store_true",
                     help="also fetch thumbnails/ and spatial_plots/ (small, useful for QC)")
     ap.add_argument("--list-organs", action="store_true")
@@ -106,14 +115,33 @@ def main():
     sel = meta
     if a.organ:
         sel = sel[sel["organ"].astype(str).str.contains(a.organ, case=False, na=False)]
+    if a.organs:
+        sel = sel[sel["organ"].astype(str).isin(a.organs)]
     if a.oncotree:
         sel = sel[sel["oncotree_code"].astype(str).str.upper() == a.oncotree.upper()]
+    if a.cancer_only:
+        sel = sel[sel["disease_state"].astype(str).isin(["Cancer", "Tumor"])]
+    if a.visium_only:
+        sel = sel[sel["st_technology"].astype(str) == "Visium"]
+    if a.species:
+        sel = sel[sel["species"].astype(str) == a.species]
     if a.ids:
         sel = sel[sel[idcol].isin(a.ids)]
+    if a.ids_file:
+        want = [x.strip() for x in open(a.ids_file) if x.strip()]
+        sel = sel[sel[idcol].astype(str).isin(want)]
     if sel.empty:
         die("no samples matched that filter (try --list-organs)")
 
     ids = sel[idcol].astype(str).tolist()
+    # skip anything already on disk, so the command is resumable
+    have = set(os.listdir(os.path.join(DEST, "st"))) if os.path.isdir(os.path.join(DEST, "st")) else set()
+    done = [i for i in ids if f"{i}.h5ad" in have]
+    if done:
+        print(f"  already downloaded, skipping: {len(done)}")
+        ids = [i for i in ids if f"{i}.h5ad" not in have]
+        if not ids:
+            print("nothing left to fetch"); return
     print(f"\nselected {len(ids)} samples")
     for col in ("organ", "oncotree_code", "st_technology", "species"):
         if col in sel.columns:
