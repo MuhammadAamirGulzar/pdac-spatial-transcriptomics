@@ -319,6 +319,7 @@ def main():
 
     mat.to_csv(os.path.join(OUT, "cross_organ_matrix.csv"))
     json.dump({"within": within, "panel": panel.tolist(),
+               "across_study_mean": (float(np.nanmean(ctrl)) if ctrl else None),
                "within_mean": float(diag.mean()), "cross_mean": float(off.mean()),
                "n_samples": len(data),
                "organs": {o: int(sum(1 for s in data if org[s] == o)) for o in organs}},

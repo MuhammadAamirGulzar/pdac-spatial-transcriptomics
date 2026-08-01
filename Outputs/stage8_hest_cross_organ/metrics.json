@@ -71,5 +71,6 @@
     "Breast": 7,
     "Lymph node": 4,
     "Pancreas": 4
-  }
+  },
+  "across_study_mean": 0.199
 }
