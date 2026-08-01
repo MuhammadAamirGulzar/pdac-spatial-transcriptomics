@@ -127,11 +127,35 @@ def main():
 
     # ---- common gene panel across every sample
     log("\n[2/5] building a common gene panel ...")
+    # `st_technology == Visium` is NOT sufficient: 10x also sells TARGETED Visium
+    # chemistries ("Targeted, Pan-Cancer Panel", "Immunology Panel", ...) which
+    # measure ~1k genes. A single such section drags the intersection down for the
+    # whole cohort -- measured: the panel became JUN/NFKBIA/MYC/TP53, i.e. the
+    # pan-cancer panel itself, and within-organ r fell from +0.24 to +0.10.
+    # Detect them by gene count rather than trusting the metadata.
+    MIN_GENES_WHOLE_TX = 5000
     common, per = None, {}
+    dropped = []
     for sid in meta[idc].astype(str):
         M, bc, genes = load_expression(sid)
+        if len(genes) < MIN_GENES_WHOLE_TX:
+            dropped.append((sid, len(genes)))
+            continue
         per[sid] = (M, bc, genes)
         common = set(genes) if common is None else (common & set(genes))
+    if dropped:
+        log(f"      dropped {len(dropped)} targeted-panel section(s): "
+            + ", ".join(f"{s}({n}g)" for s, n in dropped[:6]))
+        keep_ids = set(per)
+        meta = meta[meta[idc].astype(str).isin(keep_ids)]
+        organs = [o for o, n in meta.organ.value_counts().items() if n >= MIN_SAMPLES]
+        meta = meta[meta.organ.isin(organs)]
+        per = {s: v for s, v in per.items()
+               if s in set(meta[idc].astype(str))}
+        common = None
+        for s, (M, bc, genes) in per.items():
+            common = set(genes) if common is None else (common & set(genes))
+        log(f"      organs after filtering: {organs}")
     common = np.array(sorted(common))
     log(f"      genes present in all {len(per)} samples: {len(common)}")
 
