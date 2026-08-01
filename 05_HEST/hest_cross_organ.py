@@ -135,18 +135,34 @@ def main():
     common = np.array(sorted(common))
     log(f"      genes present in all {len(per)} samples: {len(common)}")
 
-    # variance of log-normalised expression, pooled over a subsample of spots
-    acc = []
+    # Choosing the panel by variance ACROSS organs would select organ-identity
+    # markers (pancreatic enzymes, KLK3, ...). Those score ~0 on transfer simply
+    # because they are not expressed in the other organ at all -- that measures
+    # organ identity, not whether morphology->expression rules carry over.
+    #
+    # Instead take genes that vary WITHIN every organ: compute per-spot variance
+    # inside each section, average within organ, then rank by the WEAKEST organ
+    # (a min across organs). A gene only survives if it is informative everywhere,
+    # so the cross-organ comparison is about transferable rules.
+    org_of = {s: meta.loc[meta[idc].astype(str) == s, "organ"].iloc[0] for s in per}
+    within_var = {o: [] for o in organs}
+    mean_expr = {o: [] for o in organs}
     for sid, (M, bc, genes) in per.items():
         idx = pd.Index(genes).get_indexer(common)
         sub = M[:, idx]
-        lib = np.asarray(sub.sum(1)).ravel(); lib[lib == 0] = 1
+        lib = np.asarray(M.sum(1)).ravel(); lib[lib == 0] = 1
         ln = sp.csr_matrix(sub.multiply(1e4 / lib[:, None])).log1p()
-        acc.append(np.asarray(ln.mean(0)).ravel())
-    v = np.vstack(acc).var(0) + np.vstack(acc).mean(0) * 1e-6
-    panel_idx = np.argsort(-v)[:N_GENES]
+        d = np.asarray(ln.todense())
+        within_var[org_of[sid]].append(d.var(0))
+        mean_expr[org_of[sid]].append(d.mean(0))
+    V = np.vstack([np.mean(within_var[o], 0) for o in organs])     # organs x genes
+    E = np.vstack([np.mean(mean_expr[o], 0) for o in organs])
+    score = V.min(0)                       # must vary in the WEAKEST organ too
+    score[E.min(0) < 0.05] = -np.inf       # and be detectably expressed everywhere
+    panel_idx = np.argsort(-score)[:N_GENES]
     panel = common[panel_idx]
-    log(f"      panel = {N_GENES} most variable: {', '.join(panel[:8])} ...")
+    log(f"      panel = {N_GENES} genes variable WITHIN every organ (not organ markers)")
+    log(f"      {', '.join(panel[:10])} ...")
 
     # ---- assemble per-sample matrices
     log("\n[3/5] aligning embeddings to expression by barcode ...")
@@ -206,6 +222,44 @@ def main():
     log("\n      rows = trained on, cols = tested on (diagonal = within-organ)")
     log(mat.round(3).to_string())
 
+    # ---------------------------------------------------------- BATCH CONTROL
+    # HEST samples come from many source studies, and an organ is often covered by
+    # a single study. Then "train on organ A, test on organ B" also means "train on
+    # study X, test on study Y", and the drop could be pure batch effect -- lab,
+    # protocol, sequencing depth, fixation -- with no organ biology in it.
+    #
+    # The control: WITHIN one organ, train on one study and test on another. If
+    # that drops as much as the cross-organ comparison, the effect is batch, not
+    # organ, and the cross-organ number means nothing.
+    log("\n[6/6] BATCH CONTROL - within-organ, ACROSS study")
+    study = {}
+    if "dataset_title" in meta.columns:
+        study = {s: meta.loc[meta[idc].astype(str) == s, "dataset_title"].iloc[0]
+                 for s in data}
+    ctrl = []
+    for o in organs:
+        ids = [s for s in data if org[s] == o]
+        studies = {}
+        for s in ids:
+            studies.setdefault(study.get(s, "?"), []).append(s)
+        if len(studies) < 2:
+            log(f"      {o:12s} only {len(studies)} study — cannot test")
+            continue
+        keys = list(studies)
+        for a in keys:
+            for b in keys:
+                if a == b or not studies[a] or not studies[b]:
+                    continue
+                r = fit_predict(studies[a], studies[b])
+                ctrl.append(r)
+                log(f"      {o:12s} train[{a[:26]}...] -> test[{b[:26]}...] r={r:+.3f}")
+    if ctrl:
+        log(f"\n      within-organ ACROSS-study mean : {np.nanmean(ctrl):+.3f}")
+    else:
+        log("      NO organ has >1 study among the available samples, so organ and")
+        log("      study are perfectly confounded. The cross-organ number below")
+        log("      CANNOT be attributed to organ biology.")
+
     diag = np.array([mat.loc[o, o] for o in organs if not np.isnan(mat.loc[o, o])])
     off = mat.values[~np.eye(len(organs), dtype=bool)]
     off = off[~np.isnan(off)]
@@ -219,9 +273,25 @@ def main():
     log(f"      cross-organ  mean : {off.mean():+.3f}")
     log(f"      drop on transfer  : {diag.mean()-off.mean():+.3f} "
         f"({100*(1-off.mean()/max(diag.mean(),1e-9)):.0f}% of the signal)")
-    log("\n      A large drop supports the prediction from Stages 6-7: expression")
-    log("      programs are tissue-context specific, so morphology->expression")
-    log("      rules learned in one organ do not carry to another.")
+    # The verdict MUST depend on the batch control: a drop is only attributable to
+    # organ biology if within-organ/across-study transfer holds up.
+    if not ctrl:
+        log("\n      VERDICT: UNINTERPRETABLE. Organ and study are perfectly confounded")
+        log("      in the available samples, so this drop may be entirely batch effect.")
+        log("      Re-run once an organ is covered by more than one study.")
+    else:
+        cm = float(np.nanmean(ctrl))
+        log(f"\n      cross-organ {off.mean():+.3f}  vs  within-organ/across-study {cm:+.3f}")
+        if off.mean() < cm - 0.03:
+            log("      VERDICT: transfer degrades MORE across organs than across studies of")
+            log("      the same organ -> a genuine organ effect beyond batch. This supports")
+            log("      the Stage 6-7 prediction that expression is tissue-context specific.")
+        elif abs(off.mean() - cm) <= 0.03:
+            log("      VERDICT: cross-organ is no worse than cross-study WITHIN an organ ->")
+            log("      the drop is BATCH, not organ. This does NOT support the prediction.")
+        else:
+            log("      VERDICT: cross-study within an organ is worse than cross-organ —")
+            log("      batch dominates; treat the organ comparison as unreliable.")
 
     mat.to_csv(os.path.join(OUT, "cross_organ_matrix.csv"))
     json.dump({"within": within, "panel": panel.tolist(),
