@@ -1,0 +1,34 @@
+STAGE 3 - PHASE B SCORING (vision-only) + CONFOUND AUDIT
+============================================================
+Aligned PT spots: 13578
+
+ABLATION (held-out LOSO Spearman rho, Ridge):
+  bridge128_raw      +0.290
+  frozenFM_raw       +0.270
+  bridge128_resid    +0.136
+  frozenFM_resid     +0.121
+  frozenFM_mlp_raw   +0.195
+  frozenFM_mlp_resid +0.103
+  bridge - frozen (resid) = +0.015
+  -> best resid predictor: bridge128
+
+CONFOUND AUDIT (Spearman rho):
+  pred_raw_vs_tumor_frac             -0.222
+  pred_raw_vs_hepatocyte_frac        -0.056
+  pred_raw_vs_caf_frac               +0.432
+  pred_resid_vs_tumor_frac           +0.155
+  pred_resid_vs_hepatocyte_frac      +0.041
+  pred_resid_vs_caf_frac             +0.027
+  pred_raw_vs_pred_resid             +0.580
+
+CONVERGENCE (PT11 -> HM11, secondary):
+  n_pt11: 520
+  pred_resid_vs_hm11_resemblance: 0.032519208793159504
+  pred_raw_vs_hm11_resemblance: -0.13182203393446776
+
+READ: RESID is the confound-free headline; RAW is the abundance-aware
+upper bound. If both predictors give resid rho ~ noise floor (<~0.10),
+the confound-free EMT signal is not recoverable from H&E on held-out
+patients; only the abundance-driven RAW score (rho~0.3) is. If
+frozenFM >= bridge128, the contrastive bridge is not earning its keep
+-> pivot Phase B to direct frozen-FM supervised regression.

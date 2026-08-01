@@ -1,0 +1,114 @@
+{
+  "cos_hm_lnm": 0.4663816348377392,
+  "he": {
+    "score_shared": -0.11143020603377633,
+    "score_sitespec": -0.0016869503570231656,
+    "score_hm": -0.048857142539736866,
+    "score_lnm": -0.1552128025928746
+  },
+  "n_primary_spots": 10219,
+  "top_shared": [
+    {
+      "signature": "ECM",
+      "rho_shared": 0.10253317086290467,
+      "rho_sitespec": -0.05446994553631668
+    },
+    {
+      "signature": "Matrix-remodeling",
+      "rho_shared": 0.07474261561985919,
+      "rho_sitespec": -0.06010513899035399
+    },
+    {
+      "signature": "Cancer-associated-fibroblasts",
+      "rho_shared": 0.07245583676072914,
+      "rho_sitespec": -0.0595740787006077
+    },
+    {
+      "signature": "MHCI",
+      "rho_shared": 0.05654498192215728,
+      "rho_sitespec": -0.06034539939489077
+    },
+    {
+      "signature": "Protumor-cytokines",
+      "rho_shared": 0.03280895834318383,
+      "rho_sitespec": -0.05791421169462343
+    },
+    {
+      "signature": "Tumor-proliferation-rate",
+      "rho_shared": 0.00047968013942833033,
+      "rho_sitespec": -0.03993521167417129
+    },
+    {
+      "signature": "Tumor-associated-Macrophages",
+      "rho_shared": -0.0034656715007737836,
+      "rho_sitespec": -0.02779840455978168
+    },
+    {
+      "signature": "M1-signature",
+      "rho_shared": -0.008176161368325514,
+      "rho_sitespec": 0.0573859012859278
+    },
+    {
+      "signature": "Granulocyte-traffic",
+      "rho_shared": -0.013242398382865313,
+      "rho_sitespec": -0.023713677055994396
+    },
+    {
+      "signature": "Angiogenesis",
+      "rho_shared": -0.03216649212156743,
+      "rho_sitespec": 0.032862286044618175
+    }
+  ],
+  "bottom_shared": [
+    {
+      "signature": "Co-stimulatory-ligands",
+      "rho_shared": -0.10912407636201547,
+      "rho_sitespec": 0.11774838546085573
+    },
+    {
+      "signature": "Tcells",
+      "rho_shared": -0.11402849066426875,
+      "rho_sitespec": 0.1506348628538953
+    },
+    {
+      "signature": "NK-cells",
+      "rho_shared": -0.11560267671293575,
+      "rho_sitespec": 0.17713006126822856
+    },
+    {
+      "signature": "Co-stimulatory-receptors",
+      "rho_shared": -0.11565786657590756,
+      "rho_sitespec": 0.15485560697268358
+    },
+    {
+      "signature": "Bcells",
+      "rho_shared": -0.12019320703208089,
+      "rho_sitespec": 0.18163279641698288
+    },
+    {
+      "signature": "Treg",
+      "rho_shared": -0.12227944089651058,
+      "rho_sitespec": 0.1880271640261995
+    },
+    {
+      "signature": "Effector-cells",
+      "rho_shared": -0.12351500746151596,
+      "rho_sitespec": 0.18856555813901513
+    },
+    {
+      "signature": "Th2-signature",
+      "rho_shared": -0.12431733990613263,
+      "rho_sitespec": 0.18973323020859537
+    },
+    {
+      "signature": "Checkpoint-molecules",
+      "rho_shared": -0.1251412918079326,
+      "rho_sitespec": 0.15892803363101976
+    },
+    {
+      "signature": "Th1-signature",
+      "rho_shared": -0.13095134377123405,
+      "rho_sitespec": 0.1813003627017
+    }
+  ]
+}

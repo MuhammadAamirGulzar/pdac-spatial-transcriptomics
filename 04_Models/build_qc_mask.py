@@ -22,18 +22,19 @@ import os
 import pandas as pd
 from pathlib import Path
 
+from _cohort import ROOT, ALL_SAMPLES
+
 # ── Paths ───────────────────────────────────────────────────────────────────
-PROJECT    = Path(__file__).parent
+# This file lives in 04_Models/, so Path(__file__).parent is 04_Models -- it does
+# NOT point at the repo root.  Resolve through _cohort.ROOT like the stage scripts.
+PROJECT    = Path(ROOT)
 COORDS_CSV = PROJECT / "Outputs/Patient-Sample-Information/spot_spatial_coordinates.csv"
 QC_DIR     = PROJECT / "dataset/ST/scVI_counts"
 PNG_ROOT   = PROJECT / "dataset/.png patches/.png patches"
 OUT_CSV    = PROJECT / "Outputs/Patient-Sample-Information/spot_qc_mask.csv"
 
-SAMPLES = [
-    "IU_PDA_HM11", "IU_PDA_HM13",
-    "IU_PDA_T1",   "IU_PDA_T3",
-    "IU_PDA_T4",   "IU_PDA_T11",
-]
+# Driven by the cohort definition so this keeps working as the cohort expands.
+SAMPLES = list(ALL_SAMPLES)
 
 # ── Load coordinates: (sample, row, col) → barcode ──────────────────────────
 print("Loading spot_spatial_coordinates.csv ...")
@@ -60,10 +61,21 @@ for sample in SAMPLES:
     print(f"  {sample}: {len(df)} spots")
 
 qc_all = pd.concat(qc_frames, ignore_index=True)
-barcode_to_qc = {
-    row["barcode"]: (int(row["nFeature"]), int(row["nCount"]))
-    for _, row in qc_all.iterrows()
-}
+# Vectorised build -- iterrows() boxes every row into a Series and costs minutes
+# once the cohort reaches ~91k spots.
+barcode_to_qc = dict(zip(
+    qc_all["barcode"].to_numpy(),
+    zip(qc_all["nFeature"].to_numpy(dtype=int), qc_all["nCount"].to_numpy(dtype=int)),
+))
+n_dup = len(qc_all) - qc_all["barcode"].nunique()
+if n_dup:
+    # Barcodes carry a per-sample prefix (PDACP_11_AAAC...), so this should be 0.
+    # If it ever isn't, a lookup keyed on barcode alone would silently cross samples.
+    dups = qc_all.loc[qc_all["barcode"].duplicated(keep=False), ["sample", "barcode"]]
+    raise SystemExit(
+        f"FATAL: {n_dup} duplicate barcodes across samples -- barcode is not a unique "
+        f"key, so QC lookup would cross samples. Examples:\n{dups.head(10).to_string()}"
+    )
 print(f"  {len(barcode_to_qc)} barcodes with QC metrics")
 
 # ── Iterate PNG patches, join everything ────────────────────────────────────

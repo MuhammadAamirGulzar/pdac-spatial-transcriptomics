@@ -67,16 +67,18 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPRegressor
 
 # ----------------------------------------------------------------------------- paths
-ROOT       = os.path.dirname(os.path.abspath(__file__))
+from _cohort import ROOT, PT_SAMPLES, OUT_TAG, out_dir, banner
+
 BRIDGE_PT  = os.path.join(ROOT, "Outputs", "stage2", "UNI2h", "stage2_UNI2h_outputs",
                           "all_spots_embeddings.pt")
 FM_DIR     = os.path.join(ROOT, "dataset", "Feature Extraction Embeddings", "UNI2-h")
-LEAVING_CSV= os.path.join(ROOT, "Outputs", "stage1a_leaving_program", "leaving_program_scores.csv")
-PT11_CSV   = os.path.join(ROOT, "Outputs", "stage1b_pt11_anchor", "pt11_hm11_resemblance.csv")
-OUT_DIR    = os.path.join(ROOT, "Outputs", "stage3_phase_b")
-os.makedirs(OUT_DIR, exist_ok=True)
+LEAVING_CSV= os.path.join(ROOT, "Outputs", "stage1a_leaving_program" + OUT_TAG,
+                          "leaving_program_scores.csv")
+PT11_CSV   = os.path.join(ROOT, "Outputs", "stage1b_pt11_anchor" + OUT_TAG,
+                          "pt11_hm11_resemblance.csv")
+OUT_DIR    = out_dir("stage3_phase_b")
+banner("STAGE 3 - Phase B scoring")
 
-PT_SAMPLES = ["IU_PDA_T1", "IU_PDA_T3", "IU_PDA_T4", "IU_PDA_T11"]
 FM_SUFFIX  = "_uni2h.pt"
 SEED       = 42
 np.random.seed(SEED)
@@ -89,7 +91,7 @@ print(f"      {len(tgt)} PT spots, samples={tgt['sample'].value_counts().to_dict
 
 # ----------------------------------------------------------------------------- load bridge vision emb (128d, Variant A)
 print("[2/6] Loading bridge (128d) + frozen FM (1536d) embeddings ...")
-b = torch.load(BRIDGE_PT, map_location="cpu")
+b = torch.load(BRIDGE_PT, map_location="cpu", weights_only=False)
 bridge_ids = b["ids"]
 bridge_vis = b["vision_emb"].numpy()
 bridge_map = {sid: i for i, sid in enumerate(bridge_ids)}
@@ -97,7 +99,8 @@ bridge_map = {sid: i for i, sid in enumerate(bridge_ids)}
 # load frozen UNI2-h per PT sample, build patch_stem -> 1536d
 fm_vec = {}
 for s in PT_SAMPLES:
-    d = torch.load(os.path.join(FM_DIR, s + FM_SUFFIX), map_location="cpu")
+    d = torch.load(os.path.join(FM_DIR, s + FM_SUFFIX), map_location="cpu",
+                   weights_only=False)
     emb = d["embeddings"].numpy()
     names = d["patch_names"]
     for n, v in zip(names, emb):

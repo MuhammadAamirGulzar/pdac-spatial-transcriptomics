@@ -1,0 +1,22 @@
+STAGE 1B - PATIENT-11 MATCHED ANCHOR (PT11 -> HM11) - VERDICT
+============================================================
+Tumour-dominated spots: PT11 520 | HM11 876  (Tumor frac >= 0.5), 2000 HVGs, scVI NOT used (batch-correction would erase axis).
+
+HEADLINE - agreement of two INDEPENDENT axes (1A EMT signature vs 1B transcriptome anchor):
+   corr(1A leaving raw,   1B resemblance) = -0.147
+   corr(1A leaving resid, 1B resemblance) = -0.061
+   liver-gene-excluded: raw -0.142 | resid -0.055
+   -> POSITIVE = high intra-PT11 leaving-program spots also look more like HM11. Corroboration.
+
+CONFOUND AUDIT:
+   corr(resemblance, hepatocyte frac) = -0.238  (want ~0)
+   corr(resemblance, tumor frac)      = 0.361
+   liver genes in top-20 HM-like drivers = 5/20
+   corr(full axis, liver-excluded axis) = 1.000
+   Moran's I (resemblance on PT11) = 0.508 p=0.001
+
+Top HM11-like drivers: MT2A, ALB, IGKC, PLAT, FGG, IGHA1, FGA, SERPINE1, MT1E, APOE, TIMP1, GABRP
+Top PT11-like drivers: DES, COL1A1, ACTG2, COL1A2, COL3A1, COL6A2, POSTN, SFRP4, COL6A1, TPM2, SPARC, COL11A1
+
+USE: Stage-4 qualitative corroboration ONLY (NOT a Phase B training direction).
+Saved: Outputs/stage1b_pt11_anchor/pt11_hm11_resemblance.csv

@@ -1,0 +1,31 @@
+sample,patient,origin,slide_id,area,image_name,cropped_tif,whole_slide_tif,status
+IU_PDA_HM2,PT_2,Liver,377,A1,S13-16408_F1(Blu),,V377.tiff,needs_crop
+IU_PDA_HM2_2,PT_2,Liver,377,B1,S13-16408_F1(Blk),,V377.tiff,needs_crop
+IU_PDA_NP2,PT_2,Normal Pancreas,377,C1,S13-16408_E11(Blk),,V377.tiff,needs_crop
+IU_PDA_T2,PT_2,Pancreas,377,D1,S13-16408_E11(Blu),,V377.tiff,needs_crop
+IU_PDA_HM4,PT_4,Liver,120,D1,S17-19380_A1,,120.tiff,needs_crop
+IU_PDA_T4,PT_4,Pancreas,117,D1,S17-19380_H6,image_IU_PDA_T4-S17_19380_H6.tif,1__117.tiff,ready
+IU_PDA_HM5,PT_5,Liver,308,D1,S18-24418_A1,,,MISSING
+IU_PDA_HM6,PT_6,Liver,57,C1,S18-27094_A1,,,MISSING
+IU_PDA_LNM6,PT_6,Lymph node,119,A1,S18-27094_C27,image_IU_PDA_LNM6-S18_27094_C27.tif,2__119.tiff,ready
+IU_PDA_T6,PT_6,Pancreas,57,D1,S18-27094_C7,,,MISSING
+IU_PDA_LNM7,PT_7,Lymph node,119,C1,S18-27180_I16,image_IU_PDA_LNM7-S1827180_I16.tif,2__119.tiff,ready
+IU_PDA_HM8,PT_8,Liver,352,A1,S20-11446_A1,,,MISSING
+IU_PDA_LNM8,PT_8,Lymph node,326,D1,S20-11446_B15,,V326.tiff,needs_crop
+IU_PDA_T8,PT_8,Pancreas,352,B1,S20-11446_B9,,,MISSING
+IU_PDA_HM10,PT_10,Liver,352,C1,S21-15512_A1,,,MISSING
+IU_PDA_LNM10,PT_10,Lymph node,328,A1,S21-15512_C1,image_IU_PDA_LNM10-S21_15512_C1.tif,328.tiff,ready
+IU_PDA_NP10,PT_10,Normal Pancreas,328,B1,S21-15512_E1,image_IU_PDA_NP10-S21_15512_E1.tif,328.tiff,ready
+IU_PDA_T10,PT_10,Pancreas,352,D1,S21-15512_E9,,,MISSING
+IU_PDA_HM12,PT_12,Liver,308,B1,S21-26075_A1,,,MISSING
+IU_PDA_LNM12,PT_12,Lymph node,326,C1,S21-26075_H19,,V326.tiff,needs_crop
+IU_PDA_T12,PT_12,Pancreas,308,A1,S21-26075_H8,,,MISSING
+IU_PDA_T1,PT_1,Pancreas,117,A1,S13-11414_B9,image_IU_PDA_T1-S13_11414_B9.tif,1__117.tiff,ready
+IU_PDA_HM3,PT_3,Liver,120,B1,S14-8805_A1,,120.tiff,needs_crop
+IU_PDA_T3,PT_3,Pancreas,120,A1,S14-8805_B2,image_IU_PDA_T3-S14_8805_B2.tif,120.tiff,ready
+IU_PDA_HM9,PT_9,Liver,326,B1,S20-19254_D2,,V326.tiff,needs_crop
+IU_PDA_T9,PT_9,Pancreas,326,A1,S20-19254_A3,,V326.tiff,needs_crop
+IU_PDA_HM11,PT_11,Liver,118,B1,S21-23955_E3,image_IU_PDA_HM11-S21_23955_E3.tif,3__118.tiff,ready
+IU_PDA_NP11,PT_11,Normal Pancreas,118,C1,S21-23955_F16,image_IU_PDA_NP11-S21_23955_F16.tif,3__118.tiff,ready
+IU_PDA_T11,PT_11,Pancreas,118,A1,S21-23955_F12,image_IU_PDA_T11-S21_23955_F12.tif,3__118.tiff,ready
+IU_PDA_HM13,PT_13,Liver,328,C1,S22-1570_C2 Blu,image_IU_PDA_HM13-S22_1570_C2.tif,328.tiff,ready

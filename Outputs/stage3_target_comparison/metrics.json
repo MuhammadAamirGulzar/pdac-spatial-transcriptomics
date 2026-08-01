@@ -1,0 +1,45 @@
+{
+  "n_spots": 2679,
+  "patients": [
+    "PT_1",
+    "PT_11",
+    "PT_3",
+    "PT_4"
+  ],
+  "results": {
+    "leaving_score": {
+      "label": "leaving programme (raw)",
+      "pooled_rho": 0.22936561519077842,
+      "per_patient": {
+        "PT_1": 0.13805404989812783,
+        "PT_11": 0.34037435277269734,
+        "PT_3": 0.2775093442620991,
+        "PT_4": 0.20215139991464562
+      }
+    },
+    "leaving_score_resid": {
+      "label": "leaving programme (residualised)",
+      "pooled_rho": 0.1162647110303345,
+      "per_patient": {
+        "PT_1": 0.08548802521816015,
+        "PT_11": 0.03137969615841205,
+        "PT_3": 0.24543285618263233,
+        "PT_4": 0.09790291124723595
+      }
+    },
+    "met_resemblance": {
+      "label": "met_resemblance  [metastasis-derived]",
+      "pooled_rho": -0.04327858419337445,
+      "per_patient": {
+        "PT_1": 0.13619344174066814,
+        "PT_11": -0.0726034774252408,
+        "PT_3": 0.018439104815507347,
+        "PT_4": -0.023174020694373024
+      }
+    }
+  },
+  "corr_between_targets": {
+    "leaving_resid_vs_met_resemblance": 0.10070116027208278,
+    "leaving_raw_vs_met_resemblance": 0.05764534881289793
+  }
+}

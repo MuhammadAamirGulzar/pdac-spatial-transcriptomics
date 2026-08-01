@@ -1,0 +1,17 @@
+{
+  "cosines": {
+    "HM_vs_LuM": -0.20453497669132537,
+    "HM_vs_PM": -0.0037013743537231375,
+    "LuM_vs_PM": -0.2472217130529618
+  },
+  "mean_cosine": -0.15181935469933677,
+  "stage6_cosine_our_cohort": 0.547,
+  "n_sections": {
+    "HM": 15,
+    "PM": 14,
+    "T": 13,
+    "LuM": 6
+  },
+  "immune_range": 1.164261062742678,
+  "nonimmune_range": 1.1478828690628897
+}

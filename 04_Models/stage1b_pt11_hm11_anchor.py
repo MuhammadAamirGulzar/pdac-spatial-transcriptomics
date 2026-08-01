@@ -38,16 +38,17 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 # ----------------------------------------------------------------------------- paths
-ROOT       = os.path.dirname(os.path.abspath(__file__))
+from _cohort import (ROOT, RCTD_DIR, HEPATOCYTE_IDX, TUMOR_IDX, OUT_TAG,
+                     out_dir, banner, load_spot_embeddings)
+
 COUNTS_DIR = os.path.join(ROOT, "dataset", "ST", "scVI_counts")
-RCTD_DIR   = os.path.join(ROOT, "dataset", "Cell Embedding Extraction", "RCTD")
 QC_CSV     = os.path.join(ROOT, "Outputs", "Patient-Sample-Information", "spot_qc_mask.csv")
-S1A_CSV    = os.path.join(ROOT, "Outputs", "stage1a_leaving_program", "leaving_program_scores.csv")
-OUT_DIR    = os.path.join(ROOT, "Outputs", "stage1b_pt11_anchor")
-os.makedirs(OUT_DIR, exist_ok=True)
+S1A_CSV    = os.path.join(ROOT, "Outputs", "stage1a_leaving_program" + OUT_TAG,
+                          "leaving_program_scores.csv")
+OUT_DIR    = out_dir("stage1b_pt11_anchor")
+banner("STAGE 1B - PT11/HM11 anchor")
 
 PT11, HM11 = "IU_PDA_T11", "IU_PDA_HM11"
-HEPATOCYTE_IDX, TUMOR_IDX = 7, 14
 TUMOR_THRESH = 0.50
 N_HVG = 2000
 RNG = np.random.default_rng(0)
@@ -71,22 +72,27 @@ def load_lognorm(sample):
     return np.log1p(counts / lib * 1e4), genes, barcodes
 
 def rctd_fracs(sample, barcodes, bc2stem):
-    """Return (tumor_frac, hepatocyte_frac, patch_stem, row, col) aligned to barcodes."""
-    tf, hf, stems, rows, cols = [], [], [], [], []
+    """Return (tumor_frac, hepatocyte_frac, patch_stem, row, col) aligned to barcodes.
+
+    Reads the sample's cell embeddings in one consolidated load rather than one
+    torch.load per spot (see _cohort.load_spot_embeddings)."""
+    stems, rows, cols = [], [], []
     for b in barcodes:
         st = bc2stem.get((sample, b))
         stems.append(st)
         if st is None:
-            tf.append(np.nan); hf.append(np.nan); rows.append(-1); cols.append(-1); continue
-        p = st.split("_"); rows.append(int(p[-2])); cols.append(int(p[-1]))
-        cp = os.path.join(RCTD_DIR, sample, st + ".pt")
-        if os.path.exists(cp):
-            v = torch.load(cp, map_location="cpu", weights_only=False).numpy()
-            tf.append(float(v[TUMOR_IDX])); hf.append(float(v[HEPATOCYTE_IDX]))
+            rows.append(-1); cols.append(-1)
         else:
-            tf.append(np.nan); hf.append(np.nan)
-    return (np.array(tf), np.array(hf), np.array(stems, dtype=object),
-            np.array(rows), np.array(cols))
+            p = st.split("_"); rows.append(int(p[-2])); cols.append(int(p[-1]))
+
+    V, has = load_spot_embeddings(
+        RCTD_DIR, sample, [st if st is not None else "" for st in stems])
+    has &= np.array([st is not None for st in stems])
+    # Widen to float64 to match the `float(v[i])` this replaced -- under NumPy 2's
+    # NEP-50 rules the weak np.nan scalar does not promote a float32 array.
+    tf = np.where(has, V[:, TUMOR_IDX].astype(np.float64), np.nan)
+    hf = np.where(has, V[:, HEPATOCYTE_IDX].astype(np.float64), np.nan)
+    return (tf, hf, np.array(stems, dtype=object), np.array(rows), np.array(cols))
 
 def hex_morans_I(score, rc, n_perm=999):
     pos = {(int(r), int(c)): i for i, (r, c) in enumerate(rc)}

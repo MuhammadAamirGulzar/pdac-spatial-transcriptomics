@@ -36,6 +36,11 @@ Outputs/bridge_ckpts/
 # ── Auto-generated caches (derived from dataset, reproducible) ────────────────
 docs/presentation/_tissue_cache/
 presentation/_tissue_cache/
+docs/presentation/_gene_cache/
+presentation/_gene_cache/
+# consolidated per-sample embedding caches built by _cohort.load_spot_embeddings()
+**/*__stackcache_v*.npz
+*.npz
 
 # ── Internal build artifacts ──────────────────────────────────────────────────
 docs/presentation/_template_dump.txt
@@ -44,3 +49,6 @@ docs/presentation/_template_dump.txt
 .claude/
 .DS_Store
 Thumbs.db
+
+# Large regenerable intermediates (rebuilt by the stage scripts)
+Outputs/stage7_external_replication/spot_scores.csv.gz

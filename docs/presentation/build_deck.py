@@ -192,15 +192,29 @@ fig_slide("The question and the data", 4, os.path.join(SL, "fig1_cohort_overview
           "metastasis. The constraint from the clinic is that at prediction time we use the slide alone.")
 
 divider("02", "Building a signal we can trust", "A signal we can trust",
-        "The confound we avoided, the program we measure, and one spot worked through end to end",
+        "The biology is visible in the raw data — then the confound we avoided, the program we measure, and one spot end to end",
         "Before trusting any score we had to rule out the obvious trap, then define a signal inside the primary "
         "tumour, then show one spot end to end so it is not a black box.")
+fig_slide("Reading the biology directly off the slide", 5, os.path.join(SL, "figG_atlas_T11.png"),
+          "Before any model: real marker genes already partition the tissue — tumour (EPCAM/KRT8), stroma (COL1A1/SPARC), invasion (SERPINE1/S100A4/POSTN).",
+          "Start with the raw data, no model yet. This is one primary tumour, and each panel paints one gene's activity onto "
+          "the same slide, one dot per Visium spot. The tumour and epithelial genes light up the malignant glands. The collagen "
+          "and matrix genes fill the surrounding scar tissue. And the invasion genes pick out gradients toward the edges. The "
+          "biology partitions the tissue in front of your eyes, and a pathologist can check every panel against the morphology. "
+          "This is why we trust the measurement before we ever build a model on it.")
 fig_slide("Liver contamination: how much, and why it fakes a signal", 6, os.path.join(SL, "figLsum_howmuch_removable.png"),
           "Metastasis spots average ~15% liver cells vs ~0% in primary.  That liver content IS the naive 'metastasis' axis (corr 0.40), and restricting to tumour-only spots removes it (0.07).",
           "Two panels, one message. Left, how much: liver metastasis spots are about fifteen percent liver cells, the thirteen thousand "
           "five hundred primary spots almost none. Right, why it matters: the naive metastasis direction correlates zero point four with "
           "that liver content across all eighteen thousand spots, and restricting to the four thousand eight hundred tumour-dominated "
           "spots collapses it to zero point zero seven. Most of the apparent metastasis signal was simply the liver the tumour sits in.")
+fig_slide("The confound, proven in the raw genes", 7, os.path.join(SL, "figG_liver_genes_HM11.png"),
+          "Four independent liver-cell genes (ALB, APOA1, HP, TTR) light up the SAME regions of the metastasis — the contamination is real liver tissue, not a deconvolution artefact.",
+          "And here is the confound proven directly in the lab data, no cell-type model involved. On the liver-metastasis slide, "
+          "I paint four classic liver genes, albumin, apolipoprotein, haptoglobin, transthyretin. They all light up the same "
+          "regions, the liver parenchyma, and go dark in the tumour core. Four independent genes agreeing is airtight proof that "
+          "some of this tissue is genuinely liver. A naive metastasis-versus-primary model would mostly learn to detect that "
+          "liver, which is exactly why we define our target inside the primary tumours instead.")
 fig_slide("Where the liver cells are — metastasis HM11", 7, os.path.join(SL, "figLwhere_HM11.png"),
           "On the real HM11 slide, the liver-rich zone zooms to classic liver parenchyma (cords + sinusoids); the tumour zone is dense desmoplasia with no liver.",
           "Here is the contamination on the real HM11 whole slide, spots coloured by liver-cell content. Zoom into the bright pocket, cyan "
@@ -246,6 +260,22 @@ fig_slide("Which genes actually carry the signal", 9, os.path.join(SL, "figB_lea
           "transcription factor switches like SNAI1, which are low count and noisy at this fifty five micron resolution. On the "
           "right, collagens track how much tumour is present, while tenascin and laminin track the finer intrinsic invasive state. "
           "Data driven across all seventeen thousand genes, the top hits are exactly our panel genes, which independently confirms the choice.")
+fig_slide("Anatomy of a spot — slide to tissue to patch to cells to genes", 9, os.path.join(SL, "figH_anatomy_of_a_spot.png"),
+          "Two equally tumour-rich spots: the invasive one switches ON invasion genes (SERPINE1, S100A4, VIM) and turns DOWN epithelial genes (EPCAM, KRT8).  Same tumour amount, opposite behaviour — verifiable by eye.",
+          "This is the not-a-black-box slide, so let us slow down. Two spots from the same tumour, walked down the full chain, "
+          "whole slide, zoomed tissue, the exact H and E patch, the cell make-up, and the gene readout. Crucially both spots are "
+          "about equally tumour rich, sixty seven and eighty five percent, so how much cancer is controlled for. But the genes "
+          "differ. The invasive spot switches on the invasion program, SERPINE1, S100A4, and the mesenchymal gene VIM, and turns "
+          "down the epithelial genes EPCAM and KRT8. The bulky spot does the opposite. Same amount of tumour, opposite behaviour, "
+          "and every step is checkable by eye. That switch into an invasive state is exactly what our score measures.")
+fig_slide("The tumour ecosystem — the cells behind the program", 9, os.path.join(SL, "figC_cell_ecosystem.png"),
+          "The raw score IS tumour-cell content (corr +0.53).  Remove that and NO cell type is left — the fine invasion state is not a distinct cell population at this 55 micron resolution.",
+          "This panel is where the story clicks together. Panel A, who lives in each tissue, and you can see the two metastases "
+          "carry a grey liver band that the primaries do not. Panel B is the key. The raw leaving score tracks one thing above all, "
+          "the fraction of malignant tumour cells, correlation plus zero point five three. Everything else is negative simply "
+          "because that is where the tumour is not. Now the grey bars, once we remove how much tumour is present, every cell type "
+          "collapses to about zero. Panel C shows it on the real slide, the tumour map and the raw score map are the same picture. "
+          "So the part a slide can read is, at heart, tumour content, and that reinforces our whole finding rather than fighting it.")
 fig_slide("The confound and the fix, on three real spots", 10, os.path.join(SL, "figA_leaving_worked_spots.png"),
           "On the real slide, each spot's own H&E is shown so you can judge it by eye.  A dense spot can score high just from more tumour; removing that shows C is bulky, not invasive, while A and B are genuinely leaving.",
           "Here is the one confound that could fool us, made concrete on three real spots from tumour four, shown on the actual whole "
@@ -280,6 +310,14 @@ fig_slide("Predicted vs real on the tissue — tumour T1", 15, os.path.join(SL, 
           "The second tumour, T1, tells the same story. Broad zonation is recovered from the slide, but where we zoom into a disagree "
           "region the predicted rings no longer match the actual ones. This is the visual version of the ceiling, made checkable spot "
           "by spot on the real tissue.")
+fig_slide("The inference product — a risk map from a routine slide", 16, os.path.join(SL, "figI_inference_product.png"),
+          "The clinical vision (Phase C): H&E in, metastasis-risk map out, no molecular test.  Shown on a held-out patient — honest caveat: today the map reads the tumour-abundance-linked signal.",
+          "This is the product the clinic would actually receive, and it is the original vision of the project. On the left, the "
+          "five steps: a routine H and E slide goes in, it is tiled into patches, the foundation model turns each patch into a "
+          "fingerprint, our trained predictor reads them, and out comes a risk map, no molecular test needed. On the right is the "
+          "real output for a tumour the model never trained on. The honest caveat is written on the slide: today this map reads the "
+          "tumour-abundance-linked signal, not yet the finer confound-free state. Running it on a brand-new slide with no gene data "
+          "at all is a scoped engineering step that needs the full-resolution scans, and it is exactly where the roadmap points next.")
 
 divider("04", "Where we stand", "What we learned and next",
         "An honest scorecard, and the steps that would push this further",

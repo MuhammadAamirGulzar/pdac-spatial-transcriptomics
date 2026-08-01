@@ -1,0 +1,55 @@
+{
+  "resid_on": "tumor_caf",
+  "n_primary_spots": 34069,
+  "tests": [
+    {
+      "trained_on": [
+        "HM",
+        "LNM"
+      ],
+      "n": 10219,
+      "leaving_score": 0.0017143411143677014,
+      "leaving_score_resid": 0.06579230046534908,
+      "score_emt": 0.04331734713531167,
+      "score_ecm": 0.0027455959725526217,
+      "score_heldout": 0.02303553819194193,
+      "tumor_frac": 0.1260293804466509,
+      "caf_frac": -0.023544703951753596,
+      "resid_per_patient_median": 0.1062769830152965,
+      "resid_per_patient_pos": 7,
+      "resid_per_patient_n": 10
+    },
+    {
+      "trained_on": [
+        "HM"
+      ],
+      "n": 10219,
+      "leaving_score": 0.08274606085294864,
+      "leaving_score_resid": 0.12386640450529722,
+      "score_emt": 0.05841221802656859,
+      "score_ecm": 0.10966783757747811,
+      "score_heldout": 0.10466004888322605,
+      "tumor_frac": 0.03862613905132912,
+      "caf_frac": 0.06761688512055773,
+      "resid_per_patient_median": 0.14814008466714254,
+      "resid_per_patient_pos": 9,
+      "resid_per_patient_n": 10
+    },
+    {
+      "trained_on": [
+        "LNM"
+      ],
+      "n": 10219,
+      "leaving_score": -0.06354963489279943,
+      "leaving_score_resid": 0.000767481613082375,
+      "score_emt": 0.0214399776092576,
+      "score_ecm": -0.022995048862980153,
+      "score_heldout": 0.0005131161872806174,
+      "tumor_frac": 0.14126848975388945,
+      "caf_frac": -0.03381603740180994,
+      "resid_per_patient_median": 0.07425552517930221,
+      "resid_per_patient_pos": 6,
+      "resid_per_patient_n": 10
+    }
+  ]
+}

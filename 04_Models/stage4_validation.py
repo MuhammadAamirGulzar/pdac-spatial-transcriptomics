@@ -57,16 +57,19 @@ from sklearn.linear_model import RidgeCV
 from sklearn.preprocessing import StandardScaler
 
 # ----------------------------------------------------------------------------- paths
-ROOT        = os.path.dirname(os.path.abspath(__file__))
-LEAVING_CSV = os.path.join(ROOT, "Outputs", "stage1a_leaving_program", "leaving_program_scores.csv")
-PHASEB_CSV  = os.path.join(ROOT, "Outputs", "stage3_phase_b", "phase_b_scores.csv")
-PT11_CSV    = os.path.join(ROOT, "Outputs", "stage1b_pt11_anchor", "pt11_hm11_resemblance.csv")
+from _cohort import (ROOT, RCTD_DIR, PT_SAMPLES, OUT_TAG, RESID_ON,
+                     out_dir, banner, boxplot)
+
+LEAVING_CSV = os.path.join(ROOT, "Outputs", "stage1a_leaving_program" + OUT_TAG,
+                           "leaving_program_scores.csv")
+PHASEB_CSV  = os.path.join(ROOT, "Outputs", "stage3_phase_b" + OUT_TAG, "phase_b_scores.csv")
+PT11_CSV    = os.path.join(ROOT, "Outputs", "stage1b_pt11_anchor" + OUT_TAG,
+                           "pt11_hm11_resemblance.csv")
 FGES_XLSX   = os.path.join(ROOT, "Outputs", "Patient-Sample-Information",
                            "41588_2024_1914_MOESM5_ESM.xlsx")
-OUT_DIR     = os.path.join(ROOT, "Outputs", "stage4_validation")
-os.makedirs(OUT_DIR, exist_ok=True)
+OUT_DIR     = out_dir("stage4_validation")
+banner("STAGE 4 - validation")
 
-PT_SAMPLES = ["IU_PDA_T1", "IU_PDA_T3", "IU_PDA_T4", "IU_PDA_T11"]
 SEED = 42
 np.random.seed(SEED)
 
@@ -321,7 +324,7 @@ fig, axs = plt.subplots(1, 2, figsize=(10, 4.5))
 for ax, col, ttl in [(axs[0], "leaving_score", "TARGET (raw) leaving"),
                      (axs[1], "pred_raw", "VISION (raw) pred")]:
     data = [mar[col].dropna().values, intr[col].dropna().values]
-    ax.boxplot(data, labels=["margin", "interior"], showfliers=False)
+    boxplot(ax, data, ["margin", "interior"], showfliers=False)
     ax.set_title(f"{ttl}\nmargin vs interior tumour")
     ax.set_ylabel(col)
 plt.tight_layout(); plt.savefig(os.path.join(OUT_DIR, "margin_enrichment.png"), dpi=130); plt.close()
@@ -353,6 +356,9 @@ v_t2_vision_resid = test2["vision_resid_vs_extEMT"]["pooled"]
 v_t1 = test1["vision_resid_vs_hm11_resemblance"]
 v_t3_vision = test3["vision_raw"].get("p_margin_gt_interior")
 v_t4_diff = test4["vision_minus_abundance_ceiling"]
+v_t2_resid_heldout = test2["vision_resid_vs_heldoutresid"]
+# Stage-3 headline: how well the vision resid prediction tracks the resid target
+vision_resid_rho = sp(df["pred_resid"], df["leaving_score_resid"])
 
 L = []
 L.append("STAGE 4 - VALIDATION PROTOCOL (pre-registered tests vs independent evidence)")
@@ -403,19 +409,65 @@ L.append(f"  VERDICT: resid decorrelation {verdict(abs(decorr['vision_resid_vs_h
          f"abundance ceiling {'NOT beaten' if v_t4_diff < 0.05 else 'beaten'} by H&E "
          f"(if not beaten, the raw vision score is an abundance detector)")
 L.append("")
-L.append("OVERALL READ")
+# ---------------------------------------------------------------- OVERALL READ
+# DERIVED from the metrics above -- never hardcode the conclusion here.  An earlier
+# version pinned the old "resid ~ noise / abundance only" narrative as literal text,
+# which then contradicted the computed tests once the cell modality was corrected.
+L.append("OVERALL READ   [cell modality: %s | residualised on: %s]"
+         % (os.path.basename(RCTD_DIR), RESID_ON))
 L.append("-" * 74)
-L.append("The pre-registered tests confirm the honest Stage 0-3 conclusion: the")
-L.append("Stage-1A leaving target is a VALID EMT readout (Test 2a vs independent paper")
-L.append("GSEA), but the CONFOUND-FREE intra-PT EMT axis is NOT recoverable from H&E on")
-L.append("held-out patients (Test 2b resid ~ noise; Test 1 negative). H&E robustly")
-L.append("predicts only malignant ABUNDANCE (Test 4: vision_raw ~ tumour-fraction")
-L.append("ceiling; specificity panel dominated by proliferation/matrix, not the EMT")
-L.append("axis). Report the deliverable as: a reproducible, confound-audited vision")
-L.append("score whose generalizable signal is malignant abundance; the metastatic")
-L.append("'leaving' program is measurable in ST but below the cross-patient H&E ceiling")
-L.append("at 55um. Pathologist annotation (Test 3 ground truth) is the key missing")
-L.append("external check to request from Dr. Ashiq.")
+
+_target_ok = v_t2_target >= 0.15
+L.append("1. TARGET VALIDITY (Test 2a): leaving target vs independent paper GSEA "
+         f"rho = {v_t2_target:+.3f} -> "
+         f"{'VALID EMT readout' if _target_ok else 'NOT established as EMT'}.")
+
+_resid_strong, _resid_weak = v_t2_resid_heldout > 0.15, v_t2_resid_heldout > 0.05
+L.append(f"2. DELIVERABLE (Test 2b): vision_resid vs held-out EMT resid = "
+         f"{v_t2_resid_heldout:+.3f}, vs external EMT = {v_t2_vision_resid:+.3f}; "
+         f"Stage-3 held-out resid rho = {vision_resid_rho:+.3f}.")
+L.append("   -> " + ("confound-free EMT IS recoverable from H&E across held-out patients."
+                     if _resid_strong else
+                     "weak but non-zero recovery from H&E." if _resid_weak else
+                     "NOT recoverable from H&E across held-out patients (resid ~ noise)."))
+
+_beat = v_t4_diff >= 0.05
+L.append(f"3. BEYOND ABUNDANCE (Test 4): tumour-fraction-only ceiling = "
+         f"{abundance_ceiling:+.3f}, vision_raw = {vision_raw_rho:+.3f}, "
+         f"difference = {v_t4_diff:+.3f}.")
+L.append("   -> " + ("H&E carries signal BEYOND malignant abundance."
+                     if _beat else
+                     "H&E does not beat the abundance ceiling -- the raw vision "
+                     "score is essentially an abundance detector."))
+
+# residual confounds that survived whatever was regressed out
+_res_conf = {"tumour": decorr["vision_resid_vs_tumor_frac"],
+             "hepatocyte": decorr["vision_resid_vs_hepatocyte"],
+             "CAF": decorr["vision_resid_vs_caf"]}
+_worst, _wval = max(_res_conf.items(), key=lambda kv: abs(kv[1]))
+L.append("4. RESIDUAL CONFOUNDS: " + ", ".join(f"{k} {v:+.3f}" for k, v in _res_conf.items())
+         + f"  -> largest = {_worst} ({_wval:+.3f}).")
+if abs(_wval) >= 0.15:
+    L.append(f"   -> WARNING: the resid score is NOT confound-free; it still tracks "
+             f"{_worst} content. Do not describe it as confound-free until "
+             f"{_worst} is included in the residualisation (RESID_ON).")
+else:
+    L.append("   -> all audited confounds below |0.15|; 'confound-free' is defensible.")
+
+_top_spec = sorted(fges_cols, key=lambda c: spec[c]["vision_resid"], reverse=True)[:3]
+L.append("5. SPECIFICITY: vision_resid's strongest Fges associations are "
+         + ", ".join(f"{c} ({spec[c]['vision_resid']:+.3f})" for c in _top_spec) + ".")
+_emt_rank = sorted(fges_cols, key=lambda c: spec[c]["vision_resid"],
+                   reverse=True).index("EMT_signature") + 1 if "EMT_signature" in fges_cols else None
+if _emt_rank:
+    L.append(f"   -> EMT_signature ranks #{_emt_rank}/{len(fges_cols)} "
+             f"({spec['EMT_signature']['vision_resid']:+.3f}).")
+
+L.append(f"6. CROSS-PATIENT CONVERGENCE (Test 1): vision_resid vs HM11 resemblance = "
+         f"{v_t1:+.3f} -> {'supported' if v_t1 > 0.15 else 'NOT supported'}.")
+L.append("")
+L.append("Pathologist annotation remains the key missing external ground truth "
+         "(Test 3 uses an RCTD-derived margin proxy, not a real annotation).")
 
 report = "\n".join(L)
 with open(os.path.join(OUT_DIR, "validation_report.txt"), "w") as f:

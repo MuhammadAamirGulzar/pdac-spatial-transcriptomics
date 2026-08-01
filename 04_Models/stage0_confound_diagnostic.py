@@ -25,56 +25,80 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
 # ----------------------------------------------------------------------------- paths
-ROOT     = os.path.dirname(os.path.abspath(__file__))
-SCVI_DIR = os.path.join(ROOT, "dataset", "Gene Embedding Extraction", "scvi_latent_pt_embeddings")
-RCTD_DIR = os.path.join(ROOT, "dataset", "Cell Embedding Extraction", "RCTD")
-QC_CSV   = os.path.join(ROOT, "Outputs", "Patient-Sample-Information", "spot_qc_mask.csv")
-OUT_DIR  = os.path.join(ROOT, "Outputs", "stage0_confound")
-os.makedirs(OUT_DIR, exist_ok=True)
+from _cohort import (ROOT, RCTD_DIR, HEPATOCYTE_IDX, TUMOR_IDX,
+                     patients_of, out_dir, banner, boxplot,
+                     load_spot_embeddings)
 
-HEPATOCYTE_IDX = 7    # RCTD alphabetical order
-TUMOR_IDX      = 14
+SCVI_DIR = os.path.join(ROOT, "dataset", "Gene Embedding Extraction", "scvi_latent_pt_embeddings")
+QC_CSV   = os.path.join(ROOT, "Outputs", "Patient-Sample-Information", "spot_qc_mask.csv")
+OUT_DIR  = out_dir("stage0_confound")
+banner("STAGE 0 - confound diagnostic")
+
 TUMOR_THRESH   = 0.50  # "tumour-dominated" spot = Tumor Epithelial fraction >= this
 
 # ----------------------------------------------------------------------------- load
 qc = pd.read_csv(QC_CSV)
 qc["group"] = np.where(qc["sample"].str.contains("HM"), "HM", "PT")
 
-scvi, rctd, kept_idx = [], [], []
-for i, r in qc.iterrows():
-    gp = os.path.join(SCVI_DIR, r["sample"], r["patch_stem"] + ".pt")
-    cp = os.path.join(RCTD_DIR, r["sample"], r["patch_stem"] + ".pt")
-    if not (os.path.exists(gp) and os.path.exists(cp)):
-        continue
-    scvi.append(torch.load(gp, map_location="cpu", weights_only=False).numpy())
-    rctd.append(torch.load(cp, map_location="cpu", weights_only=False).numpy())
-    kept_idx.append(i)
-    if len(kept_idx) % 4000 == 0:
-        print(f"  loaded {len(kept_idx)} spots...")
+# Per sample rather than per spot: one consolidated read of each modality instead
+# of two .pt round-trips for every one of the ~20k (soon ~91k) spots.  A spot is
+# kept only when BOTH modalities have a tensor, exactly as the per-file
+# os.path.exists() pair did.
+scvi_blocks, rctd_blocks, idx_blocks = [], [], []
+for sample, grp in qc.groupby("sample", sort=False):
+    stems = grp["patch_stem"].tolist()
+    Xg, ok_g = load_spot_embeddings(SCVI_DIR, sample, stems)
+    Xc, ok_c = load_spot_embeddings(RCTD_DIR, sample, stems)
+    keep = ok_g & ok_c          # both modalities present, as the old exists() pair required
+    scvi_blocks.append(Xg[keep])
+    rctd_blocks.append(Xc[keep])
+    idx_blocks.append(np.asarray(grp.index)[keep])
+    print(f"  {sample:14s} {int(keep.sum()):5d}/{len(stems):5d} spots with both modalities")
+
+# Restore qc's original row order, which the per-sample grouping broke.
+kept = np.concatenate(idx_blocks)
+order = np.argsort(kept, kind="stable")
+kept_idx = kept[order]
 
 df = qc.loc[kept_idx].reset_index(drop=True).copy()
-X_scvi = np.vstack(scvi).astype(np.float64)          # (N,50)
-X_rctd = np.vstack(rctd).astype(np.float64)          # (N,15)
+X_scvi = np.vstack(scvi_blocks).astype(np.float64)[order]    # (N,50)
+X_rctd = np.vstack(rctd_blocks).astype(np.float64)[order]    # (N,15)
 hepato = X_rctd[:, HEPATOCYTE_IDX]
 tumor  = X_rctd[:, TUMOR_IDX]
 df["hepatocyte_frac"] = hepato
 df["tumor_frac"]      = tumor
 y = (df["group"].values == "HM").astype(int)         # 1 = HM
 samples = df["sample"].values
+df["patient"] = patients_of(samples)
 print(f"Loaded {len(df)} spots | HM={int(y.sum())} PT={int((1-y).sum())}")
+print(f"Folds = {df['patient'].nunique()} patients (leave-one-patient-out): "
+      f"{ {p: sorted(g['sample'].unique().tolist()) for p, g in df.groupby('patient')} }")
 
 results = {"n_spots": int(len(df)),
            "n_HM": int(y.sum()), "n_PT": int((1 - y).sum()),
-           "tumor_thresh": TUMOR_THRESH}
+           "tumor_thresh": TUMOR_THRESH,
+           "rctd_variant": os.path.basename(RCTD_DIR),
+           "cv": "leave-one-patient-out",
+           "patients": {p: sorted(g["sample"].unique().tolist())
+                        for p, g in df.groupby("patient")}}
 
 # ----------------------------------------------------------------------------- helpers
 def loso_accuracy(X, y, samples):
-    """Leave-one-SAMPLE-out: train on 5 samples, predict the held-out one.
-    Held-out sample is single-class, so we report per-sample accuracy (how often
-    its known label is recovered) and the balanced mean over HM vs PT samples."""
+    """Leave-one-PATIENT-out: train on 4 patients, predict the held-out patient.
+
+    Sample-level holdout leaks -- IU_PDA_T11 and IU_PDA_HM11 are the matched
+    primary/metastasis pair from patient PT_11, so holding out one leaves the
+    other in training and the 'cross-patient' claim is void.
+
+    The PT_11 fold is two-class (its own PT and HM spots); the rest are
+    single-class.  We therefore pool out-of-fold predictions across all folds
+    and take balanced accuracy = mean(TPR, TNR) on the pooled OOF vector, which
+    is well defined regardless of per-fold class composition."""
+    pat = patients_of(samples)
     per = {}
-    for s in np.unique(samples):
-        te = samples == s
+    oof = np.full(len(y), -1, dtype=int)
+    for p in np.unique(pat):
+        te = pat == p
         tr = ~te
         if len(np.unique(y[tr])) < 2:
             continue
@@ -82,11 +106,18 @@ def loso_accuracy(X, y, samples):
         clf = LogisticRegression(max_iter=2000, C=1.0)
         clf.fit(sc.transform(X[tr]), y[tr])
         pred = clf.predict(sc.transform(X[te]))
-        per[str(s)] = float((pred == y[te]).mean())
-    pt = [v for k, v in per.items() if "HM" not in k]
-    hm = [v for k, v in per.items() if "HM" in k]
-    bal = float(np.mean([np.mean(pt), np.mean(hm)])) if pt and hm else float("nan")
-    return per, bal
+        oof[te] = pred
+        per[str(p)] = {"acc": float((pred == y[te]).mean()),
+                       "n": int(te.sum()),
+                       "samples": sorted(set(samples[te].tolist()))}
+    ok = oof >= 0
+    if ok.sum() and len(np.unique(y[ok])) == 2:
+        tpr = float((oof[ok][y[ok] == 1] == 1).mean())
+        tnr = float((oof[ok][y[ok] == 0] == 0).mean())
+        bal = float(np.mean([tpr, tnr]))
+    else:
+        tpr = tnr = bal = float("nan")
+    return {"per_patient": per, "tpr_HM": tpr, "tnr_PT": tnr}, bal
 
 # ---- (A) Can scVI separate HM/PT across held-out patients?  all spots vs tumour-only
 for tag, sub in [("scvi_all", np.ones(len(df), bool)),
@@ -95,15 +126,17 @@ for tag, sub in [("scvi_all", np.ones(len(df), bool)),
         results[tag] = {"note": "insufficient spots/classes", "n": int(sub.sum())}
         continue
     per, bal = loso_accuracy(X_scvi[sub], y[sub], samples[sub])
-    results[tag] = {"n": int(sub.sum()), "per_sample": per, "balanced_acc": bal}
-    print(f"[{tag}] n={sub.sum()} balanced LOSO acc={bal:.3f}")
+    results[tag] = {"n": int(sub.sum()), "loso_patient": per, "balanced_acc": bal}
+    print(f"[{tag}] n={sub.sum()} balanced LOPO acc={bal:.3f} "
+          f"(TPR_HM={per['tpr_HM']:.3f} TNR_PT={per['tnr_PT']:.3f})")
 
 # ---- (B) RCTD composition alone, and RCTD WITHOUT hepatocyte (isolates liver driver)
 keep_no_hep = [i for i in range(X_rctd.shape[1]) if i != HEPATOCYTE_IDX]
 for tag, X in [("rctd_all", X_rctd), ("rctd_no_hepatocyte", X_rctd[:, keep_no_hep])]:
     per, bal = loso_accuracy(X, y, samples)
-    results[tag] = {"per_sample": per, "balanced_acc": bal}
-    print(f"[{tag}] balanced LOSO acc={bal:.3f}")
+    results[tag] = {"loso_patient": per, "balanced_acc": bal}
+    print(f"[{tag}] balanced LOPO acc={bal:.3f} "
+          f"(TPR_HM={per['tpr_HM']:.3f} TNR_PT={per['tnr_PT']:.3f})")
 
 # ---- (C) How much of mu_HM - mu_PT (scVI) is just hepatocyte content?
 delta = X_scvi[y == 1].mean(0) - X_scvi[y == 0].mean(0)
@@ -127,7 +160,7 @@ print(f"corr(delta-projection, hepatocyte_frac): all={r_all:.3f} tumour-only={r_
 fig, ax = plt.subplots(figsize=(8, 4))
 order = sorted(df["sample"].unique(), key=lambda s: ("HM" not in s, s))
 data = [df.loc[df["sample"] == s, "hepatocyte_frac"].values for s in order]
-bp = ax.boxplot(data, labels=order, patch_artist=True)
+bp = boxplot(ax, data, order, patch_artist=True)
 for patch, s in zip(bp["boxes"], order):
     patch.set_facecolor("#d96459" if "HM" in s else "#5b9bd5")
 ax.set_ylabel("RCTD hepatocyte fraction"); ax.set_title("Hepatocyte content by sample (red=HM, blue=PT)")
@@ -173,12 +206,15 @@ with open(os.path.join(OUT_DIR, "metrics.json"), "w") as f:
 
 verdict = []
 verdict.append("STAGE 0 CONFOUND DIAGNOSTIC - VERDICT\n" + "=" * 44)
+verdict.append(f"cell modality : {os.path.basename(RCTD_DIR)}   CV : leave-one-patient-out "
+               f"({df['patient'].nunique()} patients, {df['sample'].nunique()} samples)")
 verdict.append(f"HM hepatocyte frac mean = {hepato[y==1].mean():.3f}  vs  PT = {hepato[y==0].mean():.3f}")
+verdict.append(f"HM tumour frac mean     = {tumor[y==1].mean():.3f}  vs  PT = {tumor[y==0].mean():.3f}")
 verdict.append(f"corr(metastasis-direction, hepatocyte) : all spots = {r_all:.3f} | tumour-only = {r_tumor:.3f}")
 sa = results.get("scvi_all", {}).get("balanced_acc")
 st = results.get("scvi_tumoronly", {}).get("balanced_acc")
-verdict.append(f"scVI HM/PT LOSO balanced acc : all = {sa} | tumour-only = {st}")
-verdict.append(f"RCTD LOSO acc : all = {results['rctd_all']['balanced_acc']:.3f} | "
+verdict.append(f"scVI HM/PT LOPO balanced acc : all = {sa} | tumour-only = {st}")
+verdict.append(f"RCTD LOPO acc : all = {results['rctd_all']['balanced_acc']:.3f} | "
                f"no-hepatocyte = {results['rctd_no_hepatocyte']['balanced_acc']:.3f}")
 verdict.append("")
 verdict.append("READ: if r_all is high AND drops sharply tumour-only -> mu_HM axis is a")

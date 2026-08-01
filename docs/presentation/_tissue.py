@@ -93,10 +93,18 @@ def render_wsi(sample, max_dim=2000, force=False):
     if not os.path.exists(p):
         raise FileNotFoundError(f"no clean WSI png for {sample}")
     im = Image.open(p).convert("RGB")
+    fw, fh = wsi_full_dims(sample)
+    # Some clean PNGs were exported TRANSPOSED relative to the coordinate space the spot
+    # pixel coords (imagecol,imagerow) live in — their aspect ratio is ~1/(full-res aspect)
+    # instead of matching it (verified for IU_PDA_T11). Rotate back onto the coordinate
+    # orientation so a single width-based scale maps spots correctly. Samples whose PNG
+    # already matches full-res aspect are untouched.
+    pw, ph = im.size
+    if abs((pw / ph) - (fw / fh)) > 0.05 and abs((ph / pw) - (fw / fh)) < 0.05:
+        im = im.transpose(Image.TRANSPOSE)
     if max(im.size) > max_dim:
         r = max_dim / max(im.size)
         im = im.resize((int(im.size[0]*r), int(im.size[1]*r)), Image.BILINEAR)
-    fw, fh = wsi_full_dims(sample)
     scale = im.size[0] / fw            # px-per-fullres-px (uniform; aspect preserved)
     return np.asarray(im), float(scale)
 

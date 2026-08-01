@@ -48,20 +48,15 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
 # ----------------------------------------------------------------------------- paths
-ROOT      = os.path.dirname(os.path.abspath(__file__))
+from _cohort import (ROOT, RCTD_DIR, PT_SAMPLES, HEPATOCYTE_IDX, ICAF_IDX,
+                     MYCAF_IDX, TUMOR_IDX, RESID_ON, out_dir, banner, boxplot,
+                     load_spot_embeddings)
+
 COUNTS_DIR= os.path.join(ROOT, "dataset", "ST", "scVI_counts")
-RCTD_DIR  = os.path.join(ROOT, "dataset", "Cell Embedding Extraction", "RCTD")
 QC_CSV    = os.path.join(ROOT, "Outputs", "Patient-Sample-Information", "spot_qc_mask.csv")
-OUT_DIR   = os.path.join(ROOT, "Outputs", "stage1a_leaving_program")
-os.makedirs(OUT_DIR, exist_ok=True)
+OUT_DIR   = out_dir("stage1a_leaving_program")
+banner("STAGE 1A - leaving program")
 
-PT_SAMPLES = ["IU_PDA_T1", "IU_PDA_T3", "IU_PDA_T4", "IU_PDA_T11"]
-
-# RCTD 15-dim alphabetical order (see pdac_data_structures memory)
-HEPATOCYTE_IDX = 7
-ICAF_IDX       = 8
-MYCAF_IDX      = 9
-TUMOR_IDX      = 14
 TUMOR_THRESH   = 0.50
 
 # ----------------------------------------------------------------------------- gene sets
@@ -173,24 +168,28 @@ for sample in PT_SAMPLES:
     if np.corrcoef(pc1, score_core)[0, 1] < 0:
         pc1 = -pc1
 
-    # metadata + RCTD fractions
-    stems, rows_, cols_, tumor_f, hep_f, caf_f = [], [], [], [], [], []
+    # metadata + RCTD fractions.  One consolidated read of the sample's cell
+    # embeddings instead of a torch.load per spot (see _cohort.load_spot_embeddings).
+    stems, rows_, cols_ = [], [], []
     for b in barcodes:
         st = bc2stem.get((sample, b))
         stems.append(st)
-        if st is not None:
+        if st is None:
+            rows_.append(-1); cols_.append(-1)
+        else:
             parts = st.split("_")
             rows_.append(int(parts[-2])); cols_.append(int(parts[-1]))
-            cp = os.path.join(RCTD_DIR, sample, st + ".pt")
-            if os.path.exists(cp):
-                v = torch.load(cp, map_location="cpu", weights_only=False).numpy()
-                tumor_f.append(float(v[TUMOR_IDX])); hep_f.append(float(v[HEPATOCYTE_IDX]))
-                caf_f.append(float(v[ICAF_IDX] + v[MYCAF_IDX]))
-            else:
-                tumor_f.append(np.nan); hep_f.append(np.nan); caf_f.append(np.nan)
-        else:
-            rows_.append(-1); cols_.append(-1)
-            tumor_f.append(np.nan); hep_f.append(np.nan); caf_f.append(np.nan)
+
+    V, has_rctd = load_spot_embeddings(
+        RCTD_DIR, sample, [st if st is not None else "" for st in stems])
+    has_rctd &= np.array([st is not None for st in stems])
+    # Widen to float64 to match the per-spot `float(v[i])` these replaced.  Under
+    # NumPy 2's NEP-50 rules a weak np.nan scalar does NOT promote the float32
+    # tensor, so without the cast these columns serialise at float32 precision.
+    # The CAF sum is taken in float32 first, as `float(v[i] + v[j])` did.
+    tumor_f = np.where(has_rctd, V[:, TUMOR_IDX].astype(np.float64), np.nan)
+    hep_f   = np.where(has_rctd, V[:, HEPATOCYTE_IDX].astype(np.float64), np.nan)
+    caf_f   = np.where(has_rctd, (V[:, ICAF_IDX] + V[:, MYCAF_IDX]).astype(np.float64), np.nan)
 
     sdf = pd.DataFrame({
         "patch_stem": stems, "sample": sample, "barcode": barcodes,
@@ -202,14 +201,22 @@ for sample in PT_SAMPLES:
     # within-sample standardized core score = the comparable Phase B target
     sdf["leaving_score"] = (sdf["score_core"] - sdf["score_core"].mean()) / (sdf["score_core"].std() + 1e-9)
 
-    # tumour-fraction-residualized target: the core score is partly a malignant-
-    # abundance readout (corr ~0.5-0.76).  Regress it out per sample so the target
-    # captures WITHIN-tumour EMT variation, not "how much tumour is in the spot".
+    # Residualized target.  RESID_ON="tumor" removes malignant abundance only (the
+    # original design, motivated by corr(core, tumor_frac) ~0.5-0.76 measured under
+    # OUR RCTD).  Under the paper's RCTD that coupling is only -0.158 while
+    # corr(core, CAF) = +0.478, so RESID_ON="tumor_caf" additionally removes stroma
+    # -- otherwise the "confound-free" score is largely a desmoplasia detector.
     tf = sdf["tumor_frac"].to_numpy()
-    okf = np.isfinite(tf)
+    cf = sdf["caf_frac"].to_numpy()
+    if RESID_ON == "tumor_caf":
+        okf = np.isfinite(tf) & np.isfinite(cf)
+        cols = lambda m: [np.ones(m.sum()), tf[m], cf[m]]
+    else:
+        okf = np.isfinite(tf)
+        cols = lambda m: [np.ones(m.sum()), tf[m]]
     resid = np.full(len(sdf), np.nan)
     if okf.sum() > 10:
-        A = np.column_stack([np.ones(okf.sum()), tf[okf]])
+        A = np.column_stack(cols(okf))
         beta, *_ = np.linalg.lstsq(A, sdf["score_core"].to_numpy()[okf], rcond=None)
         resid[okf] = sdf["score_core"].to_numpy()[okf] - A @ beta
         rstd = np.nanstd(resid)
@@ -311,7 +318,7 @@ for sample in PT_SAMPLES:
 # 2) score distribution per sample
 fig, ax = plt.subplots(figsize=(8, 4))
 data = [scores.loc[scores["sample"] == s, "score_core"].values for s in PT_SAMPLES]
-ax.boxplot(data, labels=PT_SAMPLES, patch_artist=True)
+boxplot(ax, data, PT_SAMPLES, patch_artist=True)
 ax.set_ylabel("core leaving-program score"); ax.set_title("Leaving-program score by PT sample")
 plt.xticks(rotation=20, ha="right"); plt.tight_layout()
 plt.savefig(os.path.join(OUT_DIR, "score_distribution.png"), dpi=130); plt.close()

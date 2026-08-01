@@ -1,0 +1,217 @@
+{
+  "n_spots": 18859,
+  "n_HM": 5281,
+  "n_PT": 13578,
+  "tumor_thresh": 0.5,
+  "rctd_variant": "RCTD",
+  "cv": "leave-one-patient-out",
+  "patients": {
+    "PT_1": [
+      "IU_PDA_T1"
+    ],
+    "PT_11": [
+      "IU_PDA_HM11",
+      "IU_PDA_T11"
+    ],
+    "PT_13": [
+      "IU_PDA_HM13"
+    ],
+    "PT_3": [
+      "IU_PDA_T3"
+    ],
+    "PT_4": [
+      "IU_PDA_T4"
+    ]
+  },
+  "scvi_all": {
+    "n": 18859,
+    "loso_patient": {
+      "per_patient": {
+        "PT_1": {
+          "acc": 0.8190693133745526,
+          "n": 3073,
+          "samples": [
+            "IU_PDA_T1"
+          ]
+        },
+        "PT_11": {
+          "acc": 0.4714655303606757,
+          "n": 6571,
+          "samples": [
+            "IU_PDA_HM11",
+            "IU_PDA_T11"
+          ]
+        },
+        "PT_13": {
+          "acc": 0.11463590483056957,
+          "n": 1387,
+          "samples": [
+            "IU_PDA_HM13"
+          ]
+        },
+        "PT_3": {
+          "acc": 0.6029238387172836,
+          "n": 4241,
+          "samples": [
+            "IU_PDA_T3"
+          ]
+        },
+        "PT_4": {
+          "acc": 0.8098689712851965,
+          "n": 3587,
+          "samples": [
+            "IU_PDA_T4"
+          ]
+        }
+      },
+      "tpr_HM": 0.1393675440257527,
+      "tnr_PT": 0.7733097657976138
+    },
+    "balanced_acc": 0.45633865491168324
+  },
+  "scvi_tumoronly": {
+    "n": 4851,
+    "loso_patient": {
+      "per_patient": {
+        "PT_1": {
+          "acc": 0.9617358842743817,
+          "n": 2143,
+          "samples": [
+            "IU_PDA_T1"
+          ]
+        },
+        "PT_11": {
+          "acc": 0.9221272554605888,
+          "n": 1053,
+          "samples": [
+            "IU_PDA_HM11",
+            "IU_PDA_T11"
+          ]
+        },
+        "PT_13": {
+          "acc": 0.0,
+          "n": 60,
+          "samples": [
+            "IU_PDA_HM13"
+          ]
+        },
+        "PT_3": {
+          "acc": 0.92833607907743,
+          "n": 1214,
+          "samples": [
+            "IU_PDA_T3"
+          ]
+        },
+        "PT_4": {
+          "acc": 1.0,
+          "n": 381,
+          "samples": [
+            "IU_PDA_T4"
+          ]
+        }
+      },
+      "tpr_HM": 0.0,
+      "tnr_PT": 0.9630886720407298
+    },
+    "balanced_acc": 0.4815443360203649
+  },
+  "rctd_all": {
+    "loso_patient": {
+      "per_patient": {
+        "PT_1": {
+          "acc": 0.9785226163358282,
+          "n": 3073,
+          "samples": [
+            "IU_PDA_T1"
+          ]
+        },
+        "PT_11": {
+          "acc": 0.6438898189012326,
+          "n": 6571,
+          "samples": [
+            "IU_PDA_HM11",
+            "IU_PDA_T11"
+          ]
+        },
+        "PT_13": {
+          "acc": 0.969718817591925,
+          "n": 1387,
+          "samples": [
+            "IU_PDA_HM13"
+          ]
+        },
+        "PT_3": {
+          "acc": 0.8464984673426079,
+          "n": 4241,
+          "samples": [
+            "IU_PDA_T3"
+          ]
+        },
+        "PT_4": {
+          "acc": 0.9802063005296906,
+          "n": 3587,
+          "samples": [
+            "IU_PDA_T4"
+          ]
+        }
+      },
+      "tpr_HM": 0.5491384207536452,
+      "tnr_PT": 0.9418912947414936
+    },
+    "balanced_acc": 0.7455148577475694
+  },
+  "rctd_no_hepatocyte": {
+    "loso_patient": {
+      "per_patient": {
+        "PT_1": {
+          "acc": 0.9651806052717214,
+          "n": 3073,
+          "samples": [
+            "IU_PDA_T1"
+          ]
+        },
+        "PT_11": {
+          "acc": 0.5910820270887231,
+          "n": 6571,
+          "samples": [
+            "IU_PDA_HM11",
+            "IU_PDA_T11"
+          ]
+        },
+        "PT_13": {
+          "acc": 0.943042537851478,
+          "n": 1387,
+          "samples": [
+            "IU_PDA_HM13"
+          ]
+        },
+        "PT_3": {
+          "acc": 0.8075925489271398,
+          "n": 4241,
+          "samples": [
+            "IU_PDA_T3"
+          ]
+        },
+        "PT_4": {
+          "acc": 0.9643155840535266,
+          "n": 3587,
+          "samples": [
+            "IU_PDA_T4"
+          ]
+        }
+      },
+      "tpr_HM": 0.4762355614466957,
+      "tnr_PT": 0.9225953748711151
+    },
+    "balanced_acc": 0.6994154681589054
+  },
+  "delta_vs_hepatocyte": {
+    "pearson_r_all_spots": 0.4017883956545931,
+    "pearson_r_tumoronly": 0.07318462030999738,
+    "hepato_frac_PT_mean": 0.0019347303984938063,
+    "hepato_frac_HM_mean": 0.13964463469752045,
+    "tumor_frac_PT_mean": 0.424242808240324,
+    "tumor_frac_HM_mean": 0.24881755368546107
+  },
+  "umap": "skipped (No module named 'umap')"
+}

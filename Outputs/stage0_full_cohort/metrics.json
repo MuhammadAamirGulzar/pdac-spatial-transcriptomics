@@ -1,0 +1,326 @@
+{
+  "tumour_threshold": 0.5,
+  "contrasts": [
+    {
+      "contrast": "HM_vs_T",
+      "tumour_only": false,
+      "pos_site": "HM",
+      "neg_site": "T",
+      "n_spots": 59704,
+      "mean_hepatocyte_pos": 0.3057011541323105,
+      "mean_hepatocyte_neg": 0.0010320027339446852,
+      "results": [
+        {
+          "label": "rctd_all",
+          "n": 59704,
+          "balanced_acc": 0.8829923013944733,
+          "tpr_met": 0.8168519602106495,
+          "tnr_primary": 0.949132642578297,
+          "n_patients_met": 11,
+          "n_patients_primary": 10
+        },
+        {
+          "label": "rctd_no_hepatocyte",
+          "n": 59704,
+          "balanced_acc": 0.8737881691845064,
+          "tpr_met": 0.8031987517066511,
+          "tnr_primary": 0.9443775866623617,
+          "n_patients_met": 11,
+          "n_patients_primary": 10
+        },
+        {
+          "label": "scvi",
+          "n": 59704,
+          "balanced_acc": 0.752420560385596,
+          "tpr_met": 0.6958065145309148,
+          "tnr_primary": 0.8090346062402771,
+          "n_patients_met": 11,
+          "n_patients_primary": 10
+        }
+      ]
+    },
+    {
+      "contrast": "HM_vs_T",
+      "tumour_only": true,
+      "pos_site": "HM",
+      "neg_site": "T",
+      "n_spots": 19575,
+      "mean_hepatocyte_pos": 0.044491384254729135,
+      "mean_hepatocyte_neg": 0.0012652508753671925,
+      "results": [
+        {
+          "label": "rctd_all",
+          "n": 19575,
+          "balanced_acc": 0.8215332926314315,
+          "tpr_met": 0.7479692176143651,
+          "tnr_primary": 0.8950973676484979,
+          "n_patients_met": 9,
+          "n_patients_primary": 10
+        },
+        {
+          "label": "rctd_no_hepatocyte",
+          "n": 19575,
+          "balanced_acc": 0.8147934852635784,
+          "tpr_met": 0.7389910218041899,
+          "tnr_primary": 0.890595948722967,
+          "n_patients_met": 9,
+          "n_patients_primary": 10
+        },
+        {
+          "label": "rctd_no_hep_no_tumour",
+          "n": 19575,
+          "balanced_acc": 0.7762826297333376,
+          "tpr_met": 0.7759726378794357,
+          "tnr_primary": 0.7765926215872394,
+          "n_patients_met": 9,
+          "n_patients_primary": 10
+        },
+        {
+          "label": "scvi",
+          "n": 19575,
+          "balanced_acc": 0.6225511658090972,
+          "tpr_met": 0.5964087216759298,
+          "tnr_primary": 0.6486936099422644,
+          "n_patients_met": 9,
+          "n_patients_primary": 10
+        }
+      ]
+    },
+    {
+      "contrast": "LNM_vs_T",
+      "tumour_only": false,
+      "pos_site": "LNM",
+      "neg_site": "T",
+      "n_spots": 51606,
+      "mean_hepatocyte_pos": 0.0002881432389695314,
+      "mean_hepatocyte_neg": 0.0010320027339446852,
+      "results": [
+        {
+          "label": "rctd_all",
+          "n": 51606,
+          "balanced_acc": 0.7804356695871737,
+          "tpr_met": 0.6693277071334892,
+          "tnr_primary": 0.8915436320408583,
+          "n_patients_met": 5,
+          "n_patients_primary": 10
+        },
+        {
+          "label": "rctd_no_hepatocyte",
+          "n": 51606,
+          "balanced_acc": 0.7663856857297104,
+          "tpr_met": 0.6477732793522267,
+          "tnr_primary": 0.8849980921071943,
+          "n_patients_met": 5,
+          "n_patients_primary": 10
+        },
+        {
+          "label": "scvi",
+          "n": 51606,
+          "balanced_acc": 0.6468276656124408,
+          "tpr_met": 0.46513086616867194,
+          "tnr_primary": 0.8285244650562095,
+          "n_patients_met": 5,
+          "n_patients_primary": 10
+        }
+      ]
+    },
+    {
+      "contrast": "LNM_vs_T",
+      "tumour_only": true,
+      "pos_site": "LNM",
+      "neg_site": "T",
+      "n_spots": 17683,
+      "mean_hepatocyte_pos": 0.0003259694969268527,
+      "mean_hepatocyte_neg": 0.0012652508753671925,
+      "results": [
+        {
+          "label": "rctd_all",
+          "n": 17683,
+          "balanced_acc": 0.584985796585328,
+          "tpr_met": 0.35932475884244375,
+          "tnr_primary": 0.8106468343282122,
+          "n_patients_met": 5,
+          "n_patients_primary": 10
+        },
+        {
+          "label": "rctd_no_hepatocyte",
+          "n": 17683,
+          "balanced_acc": 0.5673028888142813,
+          "tpr_met": 0.3628081457663451,
+          "tnr_primary": 0.7717976318622174,
+          "n_patients_met": 5,
+          "n_patients_primary": 10
+        },
+        {
+          "label": "rctd_no_hep_no_tumour",
+          "n": 17683,
+          "balanced_acc": 0.5637659585201976,
+          "tpr_met": 0.3579849946409432,
+          "tnr_primary": 0.769546922399452,
+          "n_patients_met": 5,
+          "n_patients_primary": 10
+        },
+        {
+          "label": "scvi",
+          "n": 17683,
+          "balanced_acc": 0.6134195746065769,
+          "tpr_met": 0.4671757770632369,
+          "tnr_primary": 0.7596633721499169,
+          "n_patients_met": 5,
+          "n_patients_primary": 10
+        }
+      ]
+    },
+    {
+      "contrast": "HM_vs_LNM",
+      "tumour_only": false,
+      "pos_site": "HM",
+      "neg_site": "LNM",
+      "n_spots": 43172,
+      "mean_hepatocyte_pos": 0.3057011541323105,
+      "mean_hepatocyte_neg": 0.0002881432389695314,
+      "results": [
+        {
+          "label": "rctd_all",
+          "n": 43172,
+          "balanced_acc": 0.8106579453139613,
+          "tpr_met": 0.8784864443144139,
+          "tnr_primary": 0.7428294463135086,
+          "n_patients_met": 11,
+          "n_patients_primary": 5
+        },
+        {
+          "label": "rctd_no_hepatocyte",
+          "n": 43172,
+          "balanced_acc": 0.8053580282248463,
+          "tpr_met": 0.8764969767895455,
+          "tnr_primary": 0.7342190796601471,
+          "n_patients_met": 11,
+          "n_patients_primary": 5
+        },
+        {
+          "label": "scvi",
+          "n": 43172,
+          "balanced_acc": 0.6643315119008489,
+          "tpr_met": 0.7787400039009167,
+          "tnr_primary": 0.5499230199007812,
+          "n_patients_met": 11,
+          "n_patients_primary": 5
+        }
+      ]
+    },
+    {
+      "contrast": "HM_vs_LNM",
+      "tumour_only": true,
+      "pos_site": "HM",
+      "neg_site": "LNM",
+      "n_spots": 16820,
+      "mean_hepatocyte_pos": 0.044491384254729135,
+      "mean_hepatocyte_neg": 0.0003259694969268527,
+      "results": [
+        {
+          "label": "rctd_all",
+          "n": 16820,
+          "balanced_acc": 0.6729867565540189,
+          "tpr_met": 0.7910431808465156,
+          "tnr_primary": 0.554930332261522,
+          "n_patients_met": 9,
+          "n_patients_primary": 5
+        },
+        {
+          "label": "rctd_no_hepatocyte",
+          "n": 16820,
+          "balanced_acc": 0.6494511262725755,
+          "tpr_met": 0.7785378366823429,
+          "tnr_primary": 0.5203644158628081,
+          "n_patients_met": 9,
+          "n_patients_primary": 5
+        },
+        {
+          "label": "rctd_no_hep_no_tumour",
+          "n": 16820,
+          "balanced_acc": 0.5581161815563214,
+          "tpr_met": 0.6846943138093202,
+          "tnr_primary": 0.4315380493033226,
+          "n_patients_met": 9,
+          "n_patients_primary": 5
+        },
+        {
+          "label": "scvi",
+          "n": 16820,
+          "balanced_acc": 0.6154884474406895,
+          "tpr_met": 0.7013681060282172,
+          "tnr_primary": 0.5296087888531619,
+          "n_patients_met": 9,
+          "n_patients_primary": 5
+        }
+      ]
+    }
+  ],
+  "null_control": {
+    "rctd_all_mean": 0.4689122890648065,
+    "scvi_mean": 0.4303423730289996,
+    "reps": [
+      {
+        "rep": 0,
+        "group_a": [
+          "PT_11",
+          "PT_12",
+          "PT_2",
+          "PT_4",
+          "PT_6"
+        ],
+        "rctd_all": 0.7178486782782869,
+        "scvi": 0.45077533562302663
+      },
+      {
+        "rep": 1,
+        "group_a": [
+          "PT_1",
+          "PT_11",
+          "PT_12",
+          "PT_4",
+          "PT_9"
+        ],
+        "rctd_all": 0.3450105081894402,
+        "scvi": 0.42449574337686313
+      },
+      {
+        "rep": 2,
+        "group_a": [
+          "PT_1",
+          "PT_2",
+          "PT_3",
+          "PT_8",
+          "PT_9"
+        ],
+        "rctd_all": 0.3541363828866281,
+        "scvi": 0.21362900501044751
+      },
+      {
+        "rep": 3,
+        "group_a": [
+          "PT_11",
+          "PT_2",
+          "PT_3",
+          "PT_4",
+          "PT_6"
+        ],
+        "rctd_all": 0.7050138846157821,
+        "scvi": 0.5458822554371805
+      },
+      {
+        "rep": 4,
+        "group_a": [
+          "PT_1",
+          "PT_10",
+          "PT_11",
+          "PT_6",
+          "PT_8"
+        ],
+        "rctd_all": 0.2225519913538953,
+        "scvi": 0.5169295256974803
+      }
+    ]
+  }
+}

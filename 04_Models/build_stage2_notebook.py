@@ -78,7 +78,10 @@ class Config:
 
     MIN_GENES:  int = 200
     MIN_COUNTS: int = 400
-    n_folds:    int = 6
+    # Folds are leave-one-PATIENT-out and derived from PATIENT_OF at runtime
+    # (N_FOLDS), not from this value.  6 samples = 5 patients, so a hard-coded 6
+    # was both wrong and leaky.  Kept only so it lands in config.json for provenance.
+    n_folds:    int = 5
 
     # Model — Stage 2: proj_dim 256 -> 128
     proj_dim:    int   = 128
@@ -310,10 +313,17 @@ print(f"Spots with leaving target (PT): {int(n_with_leave):,}")
 ''')
 
 # ── CELL: splits ────────────────────────────────────────────────────────────
-code(r'''# Sample-level split (6-fold LOSO + cohort-transfer)
+code(r'''# Patient-level split (leave-one-PATIENT-out + cohort-transfer)
 SAMPLE_MAP = {
     "IU_PDA_HM11": "HM11", "IU_PDA_HM13": "HM13",
     "IU_PDA_T1": "T1", "IU_PDA_T3": "T3", "IU_PDA_T4": "T4", "IU_PDA_T11": "T11",
+}
+# IU_PDA_HM11 and IU_PDA_T11 are the matched metastasis/primary pair from the SAME
+# patient.  Leave-one-SAMPLE-out therefore leaked: the old Fold 1 held out HM11
+# while training on T11, and Fold 6 did the reverse.  6 samples = 5 patients.
+PATIENT_OF = {
+    "HM11": "PT_11", "T11": "PT_11",
+    "HM13": "PT_13", "T1": "PT_1", "T3": "PT_3", "T4": "PT_4",
 }
 spot_samples = np.array([SAMPLE_MAP.get(p["sample"], p["sample"]) for p in pairs])
 spot_rows    = np.array([p["row"] for p in pairs])
@@ -328,23 +338,31 @@ else:
 us, cnts = np.unique(spot_samples, return_counts=True)
 print("Per-sample spots:", {s: int(c) for s, c in zip(us, cnts)})
 
-PT_SAMPLES = ["T1", "T3", "T4", "T11"]
-HM_SAMPLES = ["HM11", "HM13"]
+ALL_SHORT  = sorted(set(SAMPLE_MAP.values()))
+PT_SAMPLES = sorted(s for s in ALL_SHORT if not s.startswith("HM"))
+HM_SAMPLES = sorted(s for s in ALL_SHORT if s.startswith("HM"))
+
+# One fold per PATIENT: every sample belonging to the held-out patient goes to val
+# together, so no patient is ever split across train/val.  Derived rather than
+# hard-coded so this stays correct as the cohort expands to 30 samples.
+PATIENTS  = sorted(set(PATIENT_OF[s] for s in ALL_SHORT))
 FOLD_DEFS = [
-    {"val": ["HM11"], "train": ["HM13", "T1", "T3", "T4", "T11"]},   # Fold 1 HM holdout
-    {"val": ["HM13"], "train": ["HM11", "T1", "T3", "T4", "T11"]},   # Fold 2 HM holdout
-    {"val": ["T1"],   "train": ["HM11", "HM13", "T3", "T4", "T11"]}, # Fold 3 PT holdout
-    {"val": ["T3"],   "train": ["HM11", "HM13", "T1", "T4", "T11"]}, # Fold 4
-    {"val": ["T4"],   "train": ["HM11", "HM13", "T1", "T3", "T11"]}, # Fold 5
-    {"val": ["T11"],  "train": ["HM11", "HM13", "T1", "T3", "T4"]},  # Fold 6 (T11+HM11 matched)
+    {"patient": p,
+     "val":   sorted(s for s in ALL_SHORT if PATIENT_OF[s] == p),
+     "train": sorted(s for s in ALL_SHORT if PATIENT_OF[s] != p)}
+    for p in PATIENTS
 ]
+N_FOLDS = len(FOLD_DEFS)
 COHORT_FOLD_DEF = {"val": HM_SAMPLES, "train": PT_SAMPLES}
 
+print(f"Leave-one-patient-out: {len(ALL_SHORT)} samples across {N_FOLDS} patients")
 for i, fd in enumerate(FOLD_DEFS, 1):
     tr = int(np.isin(spot_samples, fd["train"]).sum())
     vl = int(np.isin(spot_samples, fd["val"]).sum())
-    tag = " * HM holdout" if i <= 2 else (" [T11+HM11 matched]" if i == 6 else "")
-    print(f"  Fold {i} | train {tr:>5} {fd['train']} | val {vl:>5} {fd['val']}{tag}")
+    kinds = ("HM" if any(s.startswith("HM") for s in fd["val"]) else "") + \
+            ("+PT" if any(not s.startswith("HM") for s in fd["val"]) else "")
+    tag = f" [{kinds.strip('+')}]" + (" matched pair" if len(fd["val"]) > 1 else "")
+    print(f"  Fold {i} ({fd['patient']}) | train {tr:>5} {fd['train']} | val {vl:>5} {fd['val']}{tag}")
 
 full_dataset = TriModalDataset(pairs)
 _s = full_dataset[0]
@@ -663,7 +681,7 @@ def train_fold(variant, fold_def, fold_id, n_epochs=None, early_stop=True):
 ''')
 
 # ── CELL: run LOSO for both variants ────────────────────────────────────────
-code(r'''# Run 6-fold LOSO for each variant
+code(r'''# Run leave-one-PATIENT-out for each variant
 results = {}   # variant -> list of fold dicts
 have_leave = sum(p["has_leave"] for p in pairs) > 0
 run_list = [v for v in VARIANTS_TO_RUN if not (v == "B" and not have_leave)]
@@ -671,11 +689,11 @@ if "B" in VARIANTS_TO_RUN and not have_leave:
     print("Skipping Variant B (no leaving target available).")
 
 for variant in run_list:
-    print(f"\n{'='*64}\n  VARIANT {variant}  —  6-fold LOSO\n{'='*64}")
+    print(f"\n{'='*64}\n  VARIANT {variant}  —  {N_FOLDS}-fold leave-one-patient-out\n{'='*64}")
     fold_results = []
     for fid, fd in enumerate(FOLD_DEFS, 1):
-        tag = " * HM holdout" if fid <= 2 else ""
-        print(f"\n  Fold {fid}/6 | val {fd['val']} train {fd['train']}{tag}")
+        tag = f" * {fd['patient']}"
+        print(f"\n  Fold {fid}/{N_FOLDS} | val {fd['val']} train {fd['train']}{tag}")
         r = train_fold(variant, fd, fid)
         v_excl = r["ret_excl"]["v->g"]
         print(f"    best_val={r['best_val']:.4f} @ ep {r['best_epoch']} | "
@@ -693,8 +711,14 @@ for variant in run_list:
 code(r'''# A-vs-B decision summary (held-out vision->leaving prediction = the gate)
 def summarise(variant, fr):
     vals = [r["best_val"] for r in fr]
-    hm_vals = vals[:2]; pt_vals = vals[2:]
-    # probe only defined on PT folds (3-6)
+    # Folds are per-patient now, so HM/PT membership must be read off each fold's
+    # val set rather than assumed positional (the old code took vals[:2] as the HM
+    # folds).  The matched-pair patient contributes to BOTH means.
+    hm_vals = [v for v, fd in zip(vals, FOLD_DEFS)
+               if any(s.startswith("HM") for s in fd["val"])]
+    pt_vals = [v for v, fd in zip(vals, FOLD_DEFS)
+               if any(not s.startswith("HM") for s in fd["val"])]
+    # probe is defined only on folds whose val set contains a PT sample
     rho_resid = [r["probe"]["leave_resid"]["spearman"] for r in fr if r["probe"]]
     rho_raw   = [r["probe"]["leave_raw"]["spearman"]   for r in fr if r["probe"]]
     r2_resid  = [r["probe"]["leave_resid"]["r2"]       for r in fr if r["probe"]]
@@ -741,7 +765,7 @@ for ax, (variant, fr) in zip(axes[0], results.items()):
         ax.plot(ep, r["vl_hist"], color=COLORS[i], alpha=0.8, lw=1.5,
                 label=f"{LBL[i]} val={r['best_val']:.3f}")
         ax.axvline(r["best_epoch"], color=COLORS[i], ls=":", alpha=0.3)
-    ax.set_title(f"Variant {variant} — 6-fold LOSO")
+    ax.set_title(f"Variant {variant} — {N_FOLDS}-fold leave-one-patient-out")
     ax.set_xlabel("epoch"); ax.set_ylabel("loss"); ax.grid(alpha=0.3)
     ax.legend(fontsize=8)
 fig.tight_layout()
@@ -836,6 +860,9 @@ nb = {
     },
     "nbformat": 4, "nbformat_minor": 5,
 }
-out = Path("04_Models/phase_a_stage2.ipynb")
+# Write next to this generator rather than through a CWD-relative path, and under
+# the notebook's real name -- the repo restructure renamed it from
+# phase_a_stage2.ipynb, so the old target silently produced an orphan file.
+out = Path(__file__).resolve().parent / "stage2a_trimodal_training.ipynb"
 out.write_text(json.dumps(nb, indent=1), encoding="utf-8")
 print(f"Wrote {out} with {len(CELLS)} cells")

@@ -13,6 +13,7 @@ Configuration:
 """
 
 import json
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -67,8 +68,50 @@ IMAGE_CONFIGS = {
     },
 }
 
-# SELECT WHICH IMAGE TO PROCESS HERE
-SELECTED_IMAGE = 'IU_PDA_T3' 
+# SELECT WHICH IMAGE TO PROCESS HERE (overridden by a command-line sample id)
+SELECTED_IMAGE = 'IU_PDA_T3'
+
+# ----------------------------------------------------------------------------
+# Inventory-driven resolution.
+#
+# The hard-coded IMAGE_FILEPATHS above point at `D:\Zenodo PT & HM Dataset Work`,
+# a path from the previous machine, and cover only the original 6 samples.  The
+# WSIs now live elsewhere and 21/30 samples have one, so resolve paths from
+# Outputs/Patient-Sample-Information/wsi_inventory.csv instead (built by
+# 01_Patch_Extraction/wsi_inventory.py).  The literals stay as documentation of
+# which slide each original sample came from.
+#
+# Only `status == ready` samples are usable here: those are already cropped to a
+# single capture area, so the Visium coordinates line up.  A `needs_crop` sample
+# sits inside a 4-area whole-slide TIFF and MUST NOT be fed to this script -- the
+# coordinates would be silently wrong.
+# ----------------------------------------------------------------------------
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+WSI_SOURCE_DIR = Path(os.environ.get(
+    "WSI_DIR", r"D:\Aamir Gulzar\KSA_project3\old_project_data\ST_source_WSI_data"))
+_INVENTORY = _REPO_ROOT / "Outputs" / "Patient-Sample-Information" / "wsi_inventory.csv"
+
+
+def load_inventory():
+    """sample -> cropped WSI path, for samples that need no cropping."""
+    if not _INVENTORY.exists():
+        return {}, {}
+    inv = pd.read_csv(_INVENTORY)
+    paths, cfgs = {}, {}
+    for _, r in inv.iterrows():
+        if str(r.get("status")) != "ready" or not str(r.get("cropped_tif")):
+            continue
+        p = WSI_SOURCE_DIR / str(r["cropped_tif"])
+        if p.exists():
+            paths[r["sample"]] = str(p)
+            cfgs[r["sample"]] = {"image_name": r["sample"], "patient": r["patient"]}
+    return paths, cfgs
+
+
+_inv_paths, _inv_cfgs = load_inventory()
+if _inv_paths:
+    IMAGE_FILEPATHS = _inv_paths
+    IMAGE_CONFIGS = _inv_cfgs
 
 # ============================================================================
 # CONFIGURATION
@@ -81,10 +124,12 @@ class Config:
     PATCH_SIZE = 224
     PATCH_FORMAT = 'PNG'
     
-    # Default directories
-    WORKSPACE_DIR = Path(r"D:\Zenodo PT & HM Dataset Work")
+    # Default directories -- resolved from the repo, not the old machine's paths.
+    # Patches are written straight into dataset/.png patches/.png patches/<sample>/
+    # where build_qc_mask.py and the vision extractors already look for them.
+    WORKSPACE_DIR = Path(__file__).resolve().parent.parent
     ST_DIR = WORKSPACE_DIR / "Outputs" / "Patient-Sample-Information"
-    OUTPUT_BASE_DIR = WORKSPACE_DIR / "Outputs" / "Patches" / ".png patches"
+    OUTPUT_BASE_DIR = WORKSPACE_DIR / "dataset" / ".png patches" / ".png patches"
     
     # Visualization
     CIRCLE_COLOR = (0, 255, 0)  # Green
@@ -124,7 +169,7 @@ class PatchIDManager:
         }
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=2)
-        print(f"✓ ID manager state saved: {filepath}")
+        print(f"[ok] ID manager state saved: {filepath}")
 
 
 # ============================================================================
@@ -153,8 +198,8 @@ class SpatialDataLoader:
         try:
             self.spots_df = pd.read_csv(self.spots_csv)
             self.scale_df = pd.read_csv(self.scale_csv)
-            print(f"✓ Loaded {len(self.spots_df)} spot coordinates")
-            print(f"✓ Loaded scale info for {len(self.scale_df)} images\n")
+            print(f"[ok] Loaded {len(self.spots_df)} spot coordinates")
+            print(f"[ok] Loaded scale info for {len(self.scale_df)} images\n")
         except Exception as e:
             raise RuntimeError(f"Failed to load spatial data: {e}")
     
@@ -750,7 +795,7 @@ class ImageProcessor:
         metadata_file = self.output_dir / "patches_metadata.json"
         with open(metadata_file, 'w') as f:
             json.dump(metadata, f, indent=2)
-        print(f"✓ Metadata saved: {metadata_file}\n")
+        print(f"[ok] Metadata saved: {metadata_file}\n")
 
 
 # ============================================================================
@@ -759,13 +804,54 @@ class ImageProcessor:
 
 if __name__ == "__main__":
     try:
+        # `python create_patches.py SAMPLE [SAMPLE ...]`, or "all" for every ready
+        # sample that has no patches yet.  Falls back to SELECTED_IMAGE.
+        argv = sys.argv[1:]
+        if argv == ["all"]:
+            # Count actual PNGs -- a failed run leaves an empty directory behind, so
+            # "directory exists" is not evidence that the sample was patched.
+            def n_patches(s):
+                d = Config.OUTPUT_BASE_DIR / s
+                return len(list(d.glob("*.png"))) if d.is_dir() else 0
+
+            expected = {}
+            spots_csv = Config.ST_DIR / "spot_spatial_coordinates.csv"
+            if spots_csv.exists():
+                sp = pd.read_csv(spots_csv)
+                expected = sp.groupby("image").size().to_dict()
+            todo = [s for s in sorted(IMAGE_FILEPATHS)
+                    if n_patches(s) < expected.get(s, 1)]
+            for s in todo:
+                print(f"  {s}: {n_patches(s)}/{expected.get(s, '?')} patches -> (re)build")
+            print(f"Samples to patch: {todo}")
+        elif argv:
+            todo = argv
+        else:
+            todo = [SELECTED_IMAGE]
+
+        if len(todo) != 1:
+            # subprocess, not os.system: the repo path contains spaces and cmd.exe
+            # mangles the quoting ("The filename, directory name, or volume label
+            # syntax is incorrect").
+            import subprocess
+            failed = []
+            for s in todo:
+                rc = subprocess.call([sys.executable, __file__, s])
+                if rc != 0:
+                    failed.append(s)
+                    print(f"  {s}: FAILED (exit {rc})")
+            print(f"\nBatch done: {len(todo) - len(failed)}/{len(todo)} succeeded"
+                  + (f", failed: {failed}" if failed else ""))
+            sys.exit(1 if failed else 0)
+        SELECTED_IMAGE = todo[0]
+
         # Validate selected image
         if SELECTED_IMAGE not in IMAGE_FILEPATHS:
             raise ValueError(
                 f"Invalid image '{SELECTED_IMAGE}'. "
-                f"Valid options: {list(IMAGE_FILEPATHS.keys())}"
+                f"Valid options: {sorted(IMAGE_FILEPATHS.keys())}"
             )
-        
+
         # Get image configuration
         wsi_path = IMAGE_FILEPATHS[SELECTED_IMAGE]
         image_config = IMAGE_CONFIGS[SELECTED_IMAGE]
@@ -807,12 +893,12 @@ if __name__ == "__main__":
         
         metadata = processor.process()
         
-        print(f"✓ Patch creation completed successfully!")
+        print(f"[ok] Patch creation completed successfully!")
         print(f"  Total patches: {metadata['extraction_summary']['patches_extracted']}")
         sys.exit(0)
         
     except Exception as e:
-        print(f"✗ Error: {e}")
+        print(f"[X] Error: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

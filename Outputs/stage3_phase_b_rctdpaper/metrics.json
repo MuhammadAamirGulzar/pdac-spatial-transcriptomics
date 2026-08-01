@@ -1,0 +1,81 @@
+{
+  "n_spots": 13578,
+  "best_predictor": "frozenFM",
+  "ablation_ridge": {
+    "bridge128_raw": {
+      "pooled_rho": 0.2901462413119775,
+      "per_fold_rho": {
+        "IU_PDA_T1": 0.2719401173308437,
+        "IU_PDA_T3": 0.419450433101868,
+        "IU_PDA_T4": 0.23891531489730403,
+        "IU_PDA_T11": 0.3153052177821205
+      }
+    },
+    "bridge128_resid": {
+      "pooled_rho": 0.24072413051270908,
+      "per_fold_rho": {
+        "IU_PDA_T1": 0.13547488603332783,
+        "IU_PDA_T3": 0.4469991833727977,
+        "IU_PDA_T4": 0.19859603648990307,
+        "IU_PDA_T11": 0.19764733002600526
+      }
+    },
+    "frozenFM_raw": {
+      "pooled_rho": 0.26950153167107366,
+      "per_fold_rho": {
+        "IU_PDA_T1": 0.21516799382320378,
+        "IU_PDA_T3": 0.3746812211641486,
+        "IU_PDA_T4": 0.23469740414390944,
+        "IU_PDA_T11": 0.323079649562065
+      }
+    },
+    "frozenFM_resid": {
+      "pooled_rho": 0.24975495261571792,
+      "per_fold_rho": {
+        "IU_PDA_T1": 0.1481284382704951,
+        "IU_PDA_T3": 0.424906049188017,
+        "IU_PDA_T4": 0.20834170780134376,
+        "IU_PDA_T11": 0.2079518203128345
+      }
+    },
+    "frozenFM_mlp_raw": {
+      "pooled_rho": 0.1894899357628576,
+      "per_fold_rho": {
+        "IU_PDA_T1": 0.0517858834969653,
+        "IU_PDA_T3": 0.3635349826549194,
+        "IU_PDA_T4": 0.13444251591173476,
+        "IU_PDA_T11": 0.23220120906392702
+      }
+    },
+    "frozenFM_mlp_resid": {
+      "pooled_rho": 0.1798652921140421,
+      "per_fold_rho": {
+        "IU_PDA_T1": 0.08909862213610537,
+        "IU_PDA_T3": 0.4015454399095729,
+        "IU_PDA_T4": 0.10687007112208172,
+        "IU_PDA_T11": 0.11989075259020249
+      }
+    }
+  },
+  "bridge_minus_frozen_resid_rho": -0.009030822103008845,
+  "confound_audit": {
+    "pred_raw_vs_tumor_frac": -0.22808736135338947,
+    "pred_raw_vs_hepatocyte_frac": -0.04456260644150005,
+    "pred_raw_vs_caf_frac": 0.45296408360084783,
+    "pred_resid_vs_tumor_frac": -0.09857015284989812,
+    "pred_resid_vs_hepatocyte_frac": -0.06965477530339238,
+    "pred_resid_vs_caf_frac": 0.3573452516240646,
+    "pred_raw_vs_pred_resid": 0.8842173570934874
+  },
+  "convergence_pt11": {
+    "n_pt11": 520,
+    "pred_resid_vs_hm11_resemblance": 0.012052189542121085,
+    "pred_raw_vs_hm11_resemblance": -0.1401513489893994
+  },
+  "smoothing": {
+    "pred_raw_rho_target_after_smooth": 0.3048388517593338,
+    "pred_resid_rho_target_after_smooth": 0.30668000677182466,
+    "pred_raw_rho_target_raw": 0.26950153167107366,
+    "pred_resid_rho_target_raw": 0.24975495261571792
+  }
+}

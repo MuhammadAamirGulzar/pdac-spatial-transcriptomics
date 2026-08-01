@@ -1,0 +1,33 @@
+STAGE 1A - INTRA-PT LEAVING-PROGRAM TARGET - VERDICT
+====================================================
+PT spots scored: 13578  (4 slides: IU_PDA_T1, IU_PDA_T3, IU_PDA_T4, IU_PDA_T11)
+Core signature (19 genes): SNAI1, ZEB1, ZEB2, CDH2, S100A4, TGFBR1, TGFB1, MMP1, LOXL2, ITGB6, LAMC2, SERPINE1, COL1A1, COL3A1, COL5A1, FN1, LOX, TNC, TIMP1
+Held-out validators (7): VIM, SNAI2, PRRX1, MMP9, MMP14, POSTN, SPARC
+
+GATE 1 - spatial coherence (Moran's I of core score per slide):
+   IU_PDA_T1    I=0.389  p=0.001
+   IU_PDA_T3    I=0.615  p=0.001
+   IU_PDA_T4    I=0.376  p=0.001
+   IU_PDA_T11   I=0.374  p=0.001
+   -> want POSITIVE & significant (high spots cluster at fronts, not random).
+
+GATE 2 - generalization to HELD-OUT EMT genes (pooled):
+   corr(core, held-out) = 0.466  (tumour-only 0.392)
+   corr(core, PCA axis) = 0.779  (robustness cross-check)
+   -> want clearly POSITIVE: core captures the generalizable EMT axis.
+
+CONFOUND AUDIT (pooled):
+   corr(core, tumor frac)      = -0.158  <- abundance coupling
+   corr(core, CAF frac)        = 0.478
+   corr(EMT-only, CAF frac)    = 0.113
+   corr(ECM-only, CAF frac)    = 0.598
+   corr(core, hepatocyte frac) = -0.033
+
+TUMOUR-INTRINSIC TARGET (core residualized on tumor frac, per sample):
+   corr(resid, tumor frac)      = 0.000  (~0 by construction)
+   corr(resid, held-out resid)  = 0.225  (within-tumour EMT agreement)
+   Moran's I (resid) per slide: T1=0.24, T3=0.43, T4=0.18, T11=0.16
+
+TARGET saved: Outputs/stage1a_leaving_program/leaving_program_scores.csv
+   'leaving_score'       = within-sample z of core AddModuleScore (abundance-coupled)
+   'leaving_score_resid' = tumour-fraction-residualized = RECOMMENDED Phase B target
