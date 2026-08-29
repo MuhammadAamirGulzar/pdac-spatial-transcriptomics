@@ -13,13 +13,21 @@ repository is now organised around.
 
 ## Headline result
 
-Liver and lymph-node metastases share only **~55 %** of their shift away from the matched primary
-tumour (cosine `+0.547`), and the part that differs is **immune**: B-cell content is the one
-feature surviving FDR correction (`d = +2.03`, `q = 0.042`, same direction in 4/4 paired patients),
-and it holds as tumour purity rises from 30 % to 80 % while hepatocyte contamination collapses.
+**Deposits at different sites differ in specific, identifiable features — B cells above all.** In
+the discovery cohort, B-cell content is one of only two features surviving FDR correction between
+liver and lymph-node deposits (`d = +2.03` by section, `+2.01` with the patient as the unit, same
+direction in 4/4 paired patients), and it holds as tumour purity rises from 30 % to 80 % while
+hepatocyte contamination falls eightfold.
 
-This **replicates in GSE274557** — 13 treatment-naive patients, liver/lung/peritoneal deposits —
-where the site shifts are not merely different but *unrelated to opposed* (mean cosine `-0.152`).
+**Globally, the site-specificity is established in GSE274557** — 13 treatment-naive patients,
+liver/lung/peritoneal deposits — where all three site pairs diverge far below their permutation
+nulls (`p = 0.0005`, `<0.0001`, `0.012`; observed cosines `-0.205`, `-0.004`, `-0.247`).
+
+The discovery cohort's own global cosine (`+0.547`) does **not** clear its null (`p = 0.144`): at
+9 liver and 5 node sections it would have to fall below `+0.396` to be detectable, and two halves of
+the node group agree with each other at `+0.572` — no better than node agrees with liver. That is a
+power limit, not evidence of sameness, and it is why the claim is stated per-feature for the
+discovery cohort and globally for the replication cohort. See stage 9 and HANDOFF §13.
 
 A prediction derived from those two results, then tested on **HEST-1k** (156 sections, 7 organs):
 an H&E-to-expression model should not cross organ boundaries. It doesn't. Crossing laboratories
@@ -88,6 +96,7 @@ correspondingly tagged output directory, so re-running a variant never clobbers 
 | **6** | `stage6_site_specific_program.py` · `stage6_figures.py` | **The result** — purity-swept liver vs node program |
 | **7** | `stage7_external_replication.py` · `stage7_figures.py` | GSE274557 replication across three sites |
 | **8** | `05_HEST/hest_cross_organ.py` · `05_HEST/stage8_figures.py` | Cross-organ H&E-to-expression transfer, batch-controlled |
+| **9** | `stage9_cosine_nulls.py` | Permutation nulls, patient bootstrap CIs and a patient-level differential for stages 6-7 |
 
 Every number in `docs/reports/` is regenerable from these scripts; outputs land in the matching
 `Outputs/stage*/` directory.

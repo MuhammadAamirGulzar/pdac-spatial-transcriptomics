@@ -15,12 +15,22 @@ as "the immediate next step") finished on 2026-07-29 and everything downstream o
 `full-cohort-and-site-specificity` branch was fast-forwarded into it and deleted; the six-sample
 history remains reachable at `f2293fc`.
 
-**The finding.** Liver and node metastases share only ~55 % of their departure from the matched
-primary (cosine `+0.547`); the difference is immune (B cells, `d = +2.03`, `q = 0.042`, 4/4 paired
-patients, holding across a 30→80 % purity sweep). It replicates in GSE274557 across three sites at
-mean cosine `−0.152`, and the derived prediction — that H&E→expression models should not cross
-organs — holds on HEST-1k (within-organ `0.235`, same-organ-different-lab `0.199`, cross-organ
-`0.125`; the organ effect beats the batch effect).
+**The finding, as it stands after stage 9 (§13) — this wording matters.**
+
+- **Site-specificity is established in GSE274557, not in GSE272362.** All three site pairs in the
+  replication cohort fall far below their permutation nulls (`p = 0.0005 / <0.0001 / 0.012`). The
+  discovery cohort's `+0.547` does **not** clear its own null (`p = 0.144`) — see §13. Any write-up
+  that leads with "liver and node metastases share only ~55 %" is overclaiming.
+- **The B-cell difference between liver and node deposits is solid** — `d = +2.03` at section level,
+  `+2.01` with the patient as the unit, 4/4 paired patients, and it holds across a 30→80 % purity
+  sweep while hepatocyte contamination falls eightfold.
+- **The derived prediction holds**: H&E→expression models do not cross organs (HEST-1k, within-organ
+  `0.235`, same-organ-different-lab `0.199`, cross-organ `0.125` — the organ effect beats the batch
+  effect).
+
+So the defensible shape of the claim is: *deposits at different sites differ in specific,
+identifiable features — B cells above all — and in the treatment-naive replication cohort they
+differ globally too; the discovery cohort is too small to resolve the global contrast either way.*
 
 **Written up.** `docs/reports/build_research_paper.py` generates the full manuscript;
 `docs/presentation/build_deck_site.py` the clinician deck.
@@ -30,15 +40,14 @@ organs — holds on HEST-1k (within-organ `0.235`, same-organ-different-lab `0.1
 Ordered by how much it affects acceptance. Everything in the first group is recomputation over CSVs
 already in `Outputs/` — no GPU, no new data, no re-running the cohort split.
 
-1. **No uncertainty on any cosine.** `+0.547` is a single point estimate from section-level
-   pseudobulk means, with no null. The null is not zero — two random halves of the *same* site share
-   tumour content and will score well above it. Needs: patient-level bootstrap CI, a split-half
-   within-site null (the ceiling), and a site-label permutation null (the floor). Same for stage 7.
-2. **The B-cell claim leans on an unpaired test and one deconvolution.** `q = 0.042` comes from a
-   Mann–Whitney over sections that ignores patient structure; the paired Wilcoxon floor at n=4 is
-   `p = 0.125` and can never reach significance. Two fixes, both cheap: (a) recompute a B-cell
-   marker score directly from counts (`MS4A1`, `CD79A`, `CD19`, `IGHM`) so the claim stops depending
-   on RCTD; (b) replace the unpaired test with a patient-level permutation or a mixed model.
+1. ~~**No uncertainty on any cosine.**~~ **DONE 2026-08-29 — see §13.** Outcome was not the expected
+   one: the discovery cohort's `+0.547` does not clear its own null. The manuscript's framing has to
+   change, not just gain error bars.
+2. **The B-cell claim still depends on one deconvolution.** The *statistical* half of this is
+   **done** — the patient-level re-test in §13 leaves it intact (`d = +2.01`, `q = 0.065`, 4/4).
+   What remains is the orthogonal readout: recompute a B-cell marker score directly from counts
+   (`MS4A1`, `CD79A`, `CD19`, `IGHM`) per section so the claim stops depending on RCTD at all.
+   **Needs `dataset/full_cohort/`, so it runs on the D: machine, not this one.**
 3. **Treatment exposure is uncontrolled in the discovery cohort.** The replication cohort is
    treatment-naive; GSE272362 is not characterised on this axis. Clinical fields exist for only 6 of
    13 patients (see "Not attempted: clinical validation" below) — tabulate what there is and test
@@ -750,6 +759,80 @@ were excluded, the same code concluded the loss was batch rather than organ. Com
 the batch control covers 4 of 7 organs; and absolute r is modest throughout — these numbers compare
 conditions against each other and are not a claim that expression is accurately recoverable from an
 image.
+
+---
+
+## 13. Stage 9 — nulls and uncertainty (`stage9_cosine_nulls.py`), 2026-08-29
+
+Runs off committed CSVs only — no `dataset/`, no GPU, ~2 min on the laptop. **Both existing
+pipelines are reproduced exactly first** (stage 6 `+0.547`; stage 7 `−0.205 / −0.004 / −0.247`), so
+the nulls apply to the same quantities the manuscript reports.
+
+### The null is not zero, and the test runs the other way
+
+Both site-shifts are measured against the **same** primary centroid, so they share a "becoming a
+metastasis" component by construction. If liver and node deposits ran the *same* program the cosine
+would sit near +1, limited only by sampling noise. So the question is whether the observed cosine is
+significantly **below** what shared-program-plus-noise produces — a **lower-tail** test. Shuffling
+site labels among the 14 metastatic sections at fixed group sizes (9/5, all 2002 assignments
+enumerated exactly) gives that null.
+
+### Discovery cohort — the headline does not survive
+
+| | raw (as published) | SD-scaled (stage 7 convention) |
+|---|---|---|
+| observed | **+0.547** | +0.445 |
+| patient bootstrap 95 % CI | [+0.019, +0.762] | [−0.031, +0.606] |
+| site-label null, median | +0.756 | +0.651 |
+| **P(null ≤ observed)** | **0.144** | 0.133 |
+| detection limit (one-sided p<0.05) | +0.396 | +0.329 |
+| within-HM split-half ceiling | +0.768 (126 splits) | +0.642 |
+| within-LNM split-half ceiling | **+0.572** (10 splits) | +0.562 |
+
+Two ways of seeing the same thing. The permutation p is `0.144` — the observed cosine sits inside
+the null. And the **within-LNM split-half ceiling (+0.572) is essentially the observed cross-site
+value (+0.547)**: two halves of the lymph-node group agree with each other no better than the node
+group agrees with the liver group. At 9 HM and 5 LNM sections the cosine would have to fall below
+`+0.396` to be detectable, so this cohort cannot resolve the global contrast in either direction.
+
+> **This is not a negative result about the biology — it is a power result about the cohort.**
+> "~55 % shared" should not appear as a claim. What can be said is that the discovery cohort is
+> uninformative about the *global* geometry, while remaining informative about *specific features*.
+
+### Scale: the two cohorts were never computed the same way
+
+Stage 6 takes the cosine on **raw** features; FGES scores reach ~5,200 while RCTD fractions are
+~0.00006 — a spread of **8×10⁷**, so the raw cosine is set by a handful of large signatures and the
+15 cell-type features contribute almost nothing. Stage 7 divides by the feature SD. `+0.547` and
+`−0.152` were therefore never comparable. Both conventions are now reported; the conclusion is the
+same under either, so nothing downstream turns on the choice — but the manuscript must pick one.
+
+### Replication cohort — this is where the evidence actually lives
+
+| pair | observed | null median | P(null ≤ obs) |
+|---|---|---|---|
+| HM vs LuM | −0.205 | +0.630 | **0.0005** |
+| HM vs PM | −0.004 | +0.717 | **<0.0001** |
+| LuM vs PM | −0.247 | +0.177 | **0.0123** |
+
+All three clear their nulls decisively. Treatment-naive, three sites, 48 sections. **The site-
+specificity claim should be led by GSE274557 and supported by GSE272362, not the other way round** —
+which inverts the current discovery/replication framing of the manuscript.
+
+### Patient-level differential — the B-cell result survives
+
+Stage 6 tested 9 vs 5 **sections**, but PT_2 contributes two HM sections. Aggregating to
+patient×site means (8 HM patients vs 5 LNM, 4 paired) changes almost nothing:
+
+| feature | d (section) | q (section) | d (patient) | q (patient) | paired |
+|---|---|---|---|---|---|
+| `rctd::B cells` | +2.03 | 0.042 | **+2.01** | **0.065** | 4/4 |
+| `rctd::Hepatocytes` | −1.38 | 0.042 | −1.50 | 0.065 | 0/4 |
+
+Still exactly two features at q<0.10, still the same two, and the hepatocyte positive control still
+behaves. The q drifts above 0.05 purely from losing one unit of n. Exact sign test on the 4 paired
+patients is `p = 0.125` — the floor at n=4, so direction consistency (4/4) is the evidence, not the
+p-value. Full table: `Outputs/stage9_cosine_nulls/differential_section_vs_patient.csv`.
 
 ---
 
