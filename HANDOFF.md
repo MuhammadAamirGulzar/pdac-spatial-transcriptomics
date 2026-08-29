@@ -1,6 +1,68 @@
-# Machine Handoff — PDAC ST + Foundation Model project
+# Engineering log — PDAC ST + Foundation Model project
 
-Written 2026-07-28. Read this top-to-bottom on the new machine before running anything.
+Append-only. Newest state first; earlier sections are kept as the record of how each conclusion was
+reached, **not** as live instructions. Started 2026-07-28 as a machine-handoff document.
+
+---
+
+## WHERE THE PROJECT STANDS — 2026-08-29
+
+**Stages 0 through 8 are complete and committed.** Every analysis in the pipeline table in
+[README.md](README.md) has run and its outputs are in `Outputs/`. The 30-sample split (§4, written
+as "the immediate next step") finished on 2026-07-29 and everything downstream of it is done.
+
+**Repository.** `master` is the single line of work, at the site-specificity result. The
+`full-cohort-and-site-specificity` branch was fast-forwarded into it and deleted; the six-sample
+history remains reachable at `f2293fc`.
+
+**The finding.** Liver and node metastases share only ~55 % of their departure from the matched
+primary (cosine `+0.547`); the difference is immune (B cells, `d = +2.03`, `q = 0.042`, 4/4 paired
+patients, holding across a 30→80 % purity sweep). It replicates in GSE274557 across three sites at
+mean cosine `−0.152`, and the derived prediction — that H&E→expression models should not cross
+organs — holds on HEST-1k (within-organ `0.235`, same-organ-different-lab `0.199`, cross-organ
+`0.125`; the organ effect beats the batch effect).
+
+**Written up.** `docs/reports/build_research_paper.py` generates the full manuscript;
+`docs/presentation/build_deck_site.py` the clinician deck.
+
+### What is NOT done — the work between here and a submission
+
+Ordered by how much it affects acceptance. Everything in the first group is recomputation over CSVs
+already in `Outputs/` — no GPU, no new data, no re-running the cohort split.
+
+1. **No uncertainty on any cosine.** `+0.547` is a single point estimate from section-level
+   pseudobulk means, with no null. The null is not zero — two random halves of the *same* site share
+   tumour content and will score well above it. Needs: patient-level bootstrap CI, a split-half
+   within-site null (the ceiling), and a site-label permutation null (the floor). Same for stage 7.
+2. **The B-cell claim leans on an unpaired test and one deconvolution.** `q = 0.042` comes from a
+   Mann–Whitney over sections that ignores patient structure; the paired Wilcoxon floor at n=4 is
+   `p = 0.125` and can never reach significance. Two fixes, both cheap: (a) recompute a B-cell
+   marker score directly from counts (`MS4A1`, `CD79A`, `CD19`, `IGHM`) so the claim stops depending
+   on RCTD; (b) replace the unpaired test with a patient-level permutation or a mixed model.
+3. **Treatment exposure is uncontrolled in the discovery cohort.** The replication cohort is
+   treatment-naive; GSE272362 is not characterised on this axis. Clinical fields exist for only 6 of
+   13 patients (see "Not attempted: clinical validation" below) — tabulate what there is and test
+   within it.
+4. **Stages 5–7 are pseudobulk, so nothing yet needs the data to be *spatial*.** The strongest
+   available answer: show node-met B cells are spatially *organised* (TLS-like aggregates) where
+   liver-met B cells are diffuse — Moran's I per section plus a neighbourhood-enrichment count.
+5. **The replication cohort has no lymph nodes**, so the specific B-cell claim is untested
+   elsewhere rather than confirmed. Either find an LN-containing cohort or demote B cells from
+   headline to worked example.
+6. **No power statement behind the negatives**, which leaves them open to "absence of evidence".
+
+### Deliberately not being pursued
+
+- **Expanding the H&E arm.** `Outputs/Patient-Sample-Information/wsi_inventory.csv`: of 30 sections,
+  **11 ready, 10 needs_crop, 9 MISSING** (slides 352, 308, 57 — worth requesting from the lab, it
+  costs nothing and has long latency). The automated capture-area matcher validated at **3/21** and
+  is not usable, so the 10 `needs_crop` sections need a human to identify capture areas from the
+  review sheets before QuPath. What that buys is narrow: **primaries go 4 → 6** (adding T2 and T9),
+  against a target already shown to be unrecoverable (`rho = -0.043` for anything
+  metastasis-derived, and the two candidate targets correlate at only `0.101`). HEST's 156 sections
+  serve the imaging-generalisation claim better than two more PDAC primaries.
+- **Further RCTD variants.** The `rctdold` / `rctdpaper` / `rctdpaper_residcaf` sweep has run and
+  the conclusion is stable across all three. That question is closed.
 
 ---
 
@@ -359,7 +421,10 @@ Zenodo throttles to ~20 MB/min (several hours).
 
 ---
 
-## 4. The immediate next step
+## 4. ~~The immediate next step~~ — DONE 2026-07-29
+
+> **Superseded.** The split ran on 2026-07-29 and everything below it in this section is history.
+> Results are in the 2026-07-29 status update above; the cohort lives in `dataset/full_cohort/`.
 
 Split the 30-sample object. **This is the highest-value action available** — it takes PT 4 → 10,
 **HM 2 → 12**, spots 20,395 → 91,496, and folds 5 → ~13 patients. Every Phase B conclusion currently
@@ -587,6 +652,104 @@ patients positive) — a between- vs within-patient variance effect. Weak either
 pM1, with a surgery date but no follow-up or event — so there is no survival endpoint and no useful
 stage variation. Running associations on that would be fitting noise. It needs the full clinical
 table from the lab before it is worth doing.
+
+---
+
+## 10. Stage 6 — the site-specific program (`stage6_site_specific_program.py`)
+
+Where §9 worked in scVI space on spots, this works on **purity-gated pseudobulk per section**, so
+the unit of analysis is a section and the features are interpretable (15 RCTD fractions + 27 Bagaev
+signatures = 42).
+
+**The core control is the purity sweep**, not the p-value. If a difference between liver and node
+mets is leftover host tissue it must shrink as the tumour threshold rises. It does not:
+
+| purity ≥ | n HM | n LNM | hepatocyte (HM) | lymphoid HM → LNM ratio | p |
+|---|---|---|---|---|---|
+| 0.30 | 10 | 5 | 0.133 | 2.44 | 0.020 |
+| 0.50 | 9  | 5 | 0.085 | 2.25 | 0.014 |
+| 0.70 | 6  | 3 | 0.028 | 1.96 | 0.083 |
+| 0.80 | 5  | 3 | 0.017 | 2.30 | 0.125 |
+
+Hepatocyte contamination falls 8× while the lymphoid ratio holds near 2. The rising p-values are
+n collapsing (10→5 sections), not the effect fading.
+
+**Geometry.** cos(HM-shift, LNM-shift) = **+0.547** on the pseudobulk — about half the departure
+from the primary is shared, half is destination-specific.
+
+**The differential.** Only two of 42 features survive FDR: `rctd::Hepatocytes` (`d = −1.38`,
+`q = 0.042` — the trivial positive control, and a useful sanity check that the test works) and
+**`rctd::B cells`** (`0.0044` in HM vs `0.0594` in LNM, `d = +2.03`, `q = 0.042`, higher in LNM in
+**4/4** paired patients: PT_6, PT_8, PT_10, PT_12). The paired Wilcoxon is `p = 0.125`, which is the
+**floor** for n=4 — it cannot reach significance and its value is the direction consistency, not the
+number. Nodal deposits also trend higher on Protumor-cytokines, PVL and DCs (`d ≈ 1.0–1.15`,
+q not significant); liver deposits trend higher on FCN1-TAM, Treg and Th2.
+
+> Read honestly, this is an effect-size-and-direction result on 5 LNM sections, not a
+> well-powered significance result. Item 2 of the "What is NOT done" list above is what turns it
+> into something defensible.
+
+---
+
+## 11. Stage 7 — external replication (`stage7_external_replication.py`)
+
+GSE274557 (Maitra lab), **13 treatment-naive patients**, four site types — 13 primary, 15 liver,
+14 peritoneal, 6 lung sections entering the pseudobulk. Treatment-naive matters: it removes the
+differential-chemotherapy explanation that is still open in the discovery cohort.
+
+Same construction as stage 6 — per-site shift away from the matched primary, then the cosine
+between shifts:
+
+| pair | cosine |
+|---|---|
+| liver vs lung | **−0.205** |
+| lung vs peritoneal | **−0.247** |
+| liver vs peritoneal | −0.004 |
+| **mean** | **−0.152** |
+
+So in an independent, treatment-naive cohort the site shifts are **unrelated to opposed** —
+*stronger* than the discovery cohort's `+0.547`, not weaker. Liver deposits come out immune-poor,
+lung deposits immune-rich.
+
+**One caveat to carry.** The immune feature range across sites (`1.164`) is barely above the
+non-immune range (`1.148`), so "the difference is *specifically* immune" is well supported in the
+discovery cohort and only weakly supported here. The text should say the shifts differ, and that
+immune features are the clearest example, rather than claiming immune specificity in both.
+
+**This cohort has no lymph nodes**, so it replicates the general claim and cannot touch the B-cell
+one.
+
+---
+
+## 12. Stage 8 — cross-organ transfer on HEST-1k (`05_HEST/hest_cross_organ.py`)
+
+A **prediction derived from stages 6 and 7 before it was run**, not a finding fitted to them: if
+tissue context governs expression that strongly, an H&E→expression model should be organ-specific.
+Our own cohort (4 patients with usable H&E) cannot test it; HEST-1k can.
+
+**Design.** UNI2-h 1536-d per spot — the same backbone and preprocessing as the rest of the project,
+so the numbers are comparable. Target is CP10k + log1p over a 50-gene common highly-variable panel.
+Ridge (`alpha = 1000`), metric per-gene Pearson r on held-out sections. **Every split is by sample**,
+never by spot — spots within a section are not independent and a spot-level split would leak.
+156 sections, 7 organs with ≥4 sections (Bowel 61, Prostate 34, Kidney 24, Brain 22, Breast 7,
+Lymph node 4, Pancreas 4).
+
+| condition | mean r | cost |
+|---|---|---|
+| within organ (leave-one-sample-out) | **0.235** | — |
+| same organ, **different study** | **0.199** | −15 % (batch) |
+| **across organs** | **0.125** | −37 % further (organ) |
+
+**The batch control is the result.** Without it, the cross-organ drop is unattributable — a
+different organ is usually also a different laboratory. With it, the organ effect is clearly the
+larger of the two. This nearly went the other way: before three sections using a targeted gene panel
+were excluded, the same code concluded the loss was batch rather than organ. Commits `71b9a26` and
+`7eaabb0` are that sequence.
+
+**Two limits to state in any write-up.** Only Bowel, Prostate, Brain and Breast had ≥2 studies, so
+the batch control covers 4 of 7 organs; and absolute r is modest throughout — these numbers compare
+conditions against each other and are not a claim that expression is accurately recoverable from an
+image.
 
 ---
 

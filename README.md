@@ -1,122 +1,143 @@
-# PDAC Spatial Transcriptomics — Multimodal Metastatic Biomarker Pipeline
+# PDAC Spatial Transcriptomics — Site-Specific Metastatic Programs
 
-A 4-stage research pipeline that uses paired **H&E histology + spatial transcriptomics (10x Visium)** to discover and score an intra-tumour EMT "leaving program" in pancreatic cancer (PDAC), with the goal of predicting liver-metastasis propensity from H&E alone at inference.
+Paired **H&E histology + spatial transcriptomics (10x Visium)** across three cohorts, asking whether
+"metastasis" in pancreatic cancer is one transcriptional state or several.
 
-**Cohort:** the full 30-section GSE272362 release — **10 primary + 12 liver-met + 5 lymph-node-met +
-3 normal-pancreas sections from 13 patients, 91,496 spots** (87,055 QC-passing). Select it with
-`COHORT=full`; `COHORT=six` (the default) keeps the original validated 6-slide subset.
-
-**External cohort:** GSE274557 (Maitra 2025) in `dataset/external/` — 55 sections, 13 treatment-naive
-patients, primary + liver + peritoneal + lung.
+It is not. **Where a tumour spreads changes what it becomes**, and that finding is what the
+repository is now organised around.
 
 > Plain-language walkthrough: [PROJECT_EXPLAINED.md](PROJECT_EXPLAINED.md).
-> Current state, environment, and every fix/decision: **[HANDOFF.md](HANDOFF.md)** — read this first.
-
-### Headline result
-
-The metastatic transcriptional program is **destination-specific**: liver and lymph-node metastases
-share only ~55 % of their shift away from the primary tumour, and the part that differs is immune
-(B cells, d = +2.03, q = 0.042, 4/4 paired patients). This **replicates in GSE274557** across three
-metastatic sites, where the shifts are essentially unrelated — liver metastases are immune-cold and
-lung metastases immune-hot. Correspondingly, no metastasis-derived target has proved recoverable
-from H&E: there was never one "metastatic" target to predict.
+> Engineering log — environment, every fix, every decision: **[HANDOFF.md](HANDOFF.md)**.
 
 ---
 
-## Repository Structure
+## Headline result
+
+Liver and lymph-node metastases share only **~55 %** of their shift away from the matched primary
+tumour (cosine `+0.547`), and the part that differs is **immune**: B-cell content is the one
+feature surviving FDR correction (`d = +2.03`, `q = 0.042`, same direction in 4/4 paired patients),
+and it holds as tumour purity rises from 30 % to 80 % while hepatocyte contamination collapses.
+
+This **replicates in GSE274557** — 13 treatment-naive patients, liver/lung/peritoneal deposits —
+where the site shifts are not merely different but *unrelated to opposed* (mean cosine `-0.152`).
+
+A prediction derived from those two results, then tested on **HEST-1k** (156 sections, 7 organs):
+an H&E-to-expression model should not cross organ boundaries. It doesn't. Crossing laboratories
+within one organ costs 15 % of performance (`0.235 -> 0.199`); crossing organs costs a further
+37 % (`-> 0.125`). **The organ effect is larger than the batch effect.**
+
+The original aim — recovering metastatic behaviour from primary-tumour H&E — returned a chain of
+negatives that now read as consequences rather than failures. See
+[Negative results](#negative-results-and-why-they-matter) below.
+
+---
+
+## Cohorts
+
+| Role | Dataset | Content |
+|---|---|---|
+| **Discovery** | GSE272362 (Khaliq *et al.*, Nat Genet 2024) | 30 sections / 13 patients / 91,496 spots (87,055 QC-passing) — 10 primary, 12 liver-met, 5 node-met, 3 normal pancreas |
+| **Replication** | GSE274557 (Maitra lab 2025, PMID 40269162) | 55 sections / 13 treatment-naive patients; 48 enter the purity-gated pseudobulk — primary, liver, peritoneal, lung |
+| **Generalisation** | HEST-1k (Jaume *et al.*, NeurIPS 2024) | 156 human Visium cancer sections across 7 organs |
+
+Discovery-cohort scale is selected with `COHORT=full`; `COHORT=six` keeps the original validated
+6-slide subset that stages 0–4 were developed against.
+
+---
+
+## Repository structure
 
 ```
 ST_Project/
 ├── 01_Patch_Extraction/        # H&E patches at Visium spot coordinates
-│   ├── create_patches.py       #   224x224 patches; inventory-driven, `all` runs every ready sample
+│   ├── create_patches.py       #   224x224 patches; inventory-driven
 │   ├── wsi_inventory.py        #   which of the 30 samples has a usable WSI -> wsi_inventory.csv
-│   ├── match_capture_areas.py  #   identify samples on 4-area slides (NOT reliable — see HANDOFF §)
+│   ├── match_capture_areas.py  #   4-area slide identification (NOT reliable — validated 3/21)
 │   └── build_area_review_sheet.py  # human-review sheets for unlabelled capture areas
-├── 02_Gene_Export/             # Export QC-filtered count matrices
+├── 02_Gene_Export/             # QC-filtered count matrices
 ├── 03_Embedding_Extraction/    # Per-spot embeddings
 │   ├── Cell/                   #   RCTD deconvolution (15-d) — use the paper's `rctd_fullfinal`
 │   ├── Gene/                   #   scVI latents (50-d); scvi_full_cohort.py runs all 30 sections
-│   └── Vision/                 #   UNI2-h / CONCH / H-Optimus-1; extract_uni2h_local.py runs on GPU
-├── 04_Models/
-│   ├── _cohort.py              #   COHORT=six|full, RCTD_VARIANT, RESID_ON, embedding cache
-│   ├── split_full_cohort.R     #   30-section split from the Zenodo object
-│   ├── build_qc_mask.py        #   spot QC mask
-│   ├── stage0_confound_diagnostic.py      / stage0_full_cohort.py
-│   ├── stage1a_leaving_program.py         / stage1a_full_cohort.py
-│   ├── stage1b_pt11_hm11_anchor.py
-│   ├── stage2a_trimodal_training.ipynb    (generated by build_stage2_notebook.py)
-│   ├── stage2b_model_comparison.py
-│   ├── stage3_phase_b_scoring.py          / stage3_target_comparison.py
-│   ├── stage4_validation.py
-│   ├── stage5_shared_met_axis.py          #   shared vs site-specific metastatic axis
-│   ├── stage6_site_specific_program.py    #   THE result + stage6_figures.py
-│   └── stage7_external_replication.py     #   GSE274557 replication + stage7_figures.py
+│   └── Vision/                 #   UNI2-h / CONCH / H-Optimus-1; extract_uni2h_local.py (GPU)
+├── 04_Models/                  # stages 0-7 — see the pipeline table below
+├── 05_HEST/                    # stage 8: HEST-1k subset download, UNI2-h embedding, cross-organ test
 ├── dataset/                    # not in git — see HANDOFF for what lives here
-│   ├── full_cohort/            #   30-section split output (counts, rctd, fges, coords, scVI)
-│   └── external/GSE274557/     #   replication cohort
+│   ├── full_cohort/            #   30-section split (counts, rctd, fges, coords, scVI)
+│   └── external/               #   GSE274557 replication + HEST
 ├── Outputs/                    # results, tagged by cohort/variant so nothing overwrites
-└── docs/                       # presentation figures + reports
+└── docs/                       # figures, reports, manuscript builder
 ```
 
-Stage scripts are driven by environment variables:
-`COHORT` (`six`|`full`), `RCTD_VARIANT` (`RCTD_paper`|`RCTD`), `RESID_ON` (`tumor`|`tumor_caf`).
-Outputs are written to a correspondingly tagged directory, so re-running a variant never clobbers
-another one.
-
-```
-Outputs/
-├── Patient-Sample-Information/ # Cohort metadata + source-paper supplementary tables
-├── stage0_confound/            # Confound diagnostic results
-├── stage1a_leaving_program/    # EMT leaving-program scores + figures
-├── stage1b_pt11_anchor/        # PT11→HM11 resemblance analysis
-├── stage3_phase_b/             # Phase B scoring results
-├── stage4_validation/          # Validation test results
-└── presentation_figures/       # Publication-ready figures (fig1–fig7 + slides/)
-```
-
-```
-docs/
-├── Data_Requirements.pdf
-├── Research_Scope.pdf
-├── presentation/               # Scripts that generate all figures and the Word report
-└── reports/                    # Project reports and meeting PDFs
-```
+Stage scripts are driven by environment variables — `COHORT` (`six`|`full`),
+`RCTD_VARIANT` (`RCTD_paper`|`RCTD`), `RESID_ON` (`tumor`|`tumor_caf`) — and write to a
+correspondingly tagged output directory, so re-running a variant never clobbers another one.
 
 ---
 
-## Pipeline Overview
+## Pipeline
 
 | Stage | Script | What it does |
 |-------|--------|-------------|
-| **0** | `stage0_confound_diagnostic.py` | Proves liver-vs-pancreas confound; demotes cohort Δ direction |
-| **1a** | `stage1a_leaving_program.py` | Defines intra-PT EMT "leaving program" score (19 genes, 13,578 spots) |
-| **1b** | `stage1b_pt11_hm11_anchor.py` | PT11→HM11 convergence check (weak/null, reported honestly) |
-| **2** | `stage2a_trimodal_training.ipynb` | Tri-modal InfoNCE contrastive bridge (Phase A) — Kaggle GPU |
-| **2** | `stage2b_model_comparison.py` | Compares foundation models on held-out prediction |
-| **3** | `stage3_phase_b_scoring.py` | LOSO RidgeCV scoring head; decisive bridge vs frozen-FM ablation |
-| **4** | `stage4_validation.py` | 6 pre-registered validation tests; external GSEA from source paper |
+| **0** | `stage0_confound_diagnostic.py` · `stage0_full_cohort.py` | Liver-vs-pancreas confound; site contrasts with a patient-shuffle null |
+| **1a** | `stage1a_leaving_program.py` · `stage1a_full_cohort.py` | Intra-primary EMT "leaving program"; transfer from each metastatic site |
+| **1b** | `stage1b_pt11_hm11_anchor.py` | PT11 to HM11 convergence check (null, reported honestly) |
+| **2** | `stage2a_trimodal_training.ipynb` · `stage2b_model_comparison.py` | Tri-modal InfoNCE bridge; 4 histology foundation models compared |
+| **3** | `stage3_phase_b_scoring.py` · `stage3_target_comparison.py` | LOSO RidgeCV head; bridge vs frozen-FM ablation; which target is recoverable |
+| **4** | `stage4_validation.py` | 6 pre-registered validation tests; external GSEA from the source paper |
+| **5** | `stage5_shared_met_axis.py` | Decomposes the metastatic axis into shared and site-specific parts |
+| **6** | `stage6_site_specific_program.py` · `stage6_figures.py` | **The result** — purity-swept liver vs node program |
+| **7** | `stage7_external_replication.py` · `stage7_figures.py` | GSE274557 replication across three sites |
+| **8** | `05_HEST/hest_cross_organ.py` · `05_HEST/stage8_figures.py` | Cross-organ H&E-to-expression transfer, batch-controlled |
+
+Every number in `docs/reports/` is regenerable from these scripts; outputs land in the matching
+`Outputs/stage*/` directory.
 
 ---
 
-## Data
+## Negative results, and why they matter
 
-All raw data (Visium H5 files, H&E patches, pre-extracted embeddings) lives on Kaggle:
-**[wanianaeem/zenodo-pt-and-hm-dataset](https://www.kaggle.com/datasets/wanianaeem/zenodo-pt-and-hm-dataset)**
+These were the original project. They are kept because they are what motivated the positive finding.
 
-Clone this repo and attach the Kaggle dataset to reproduce any stage.
-
----
-
-## Key Result
-
-> The intra-primary EMT "leaving program" is a real, externally-validated transcriptomic signal; but from a routine H&E slide the model currently recovers only **how much tumour is present**, not the confound-free metastatic state, on unseen patients. The multi-modal bridge adds nothing over the frozen foundation model.
-
-See [REVIEW_PLAN.md](REVIEW_PLAN.md) for the full technical execution log with stage-by-stage decisions.
+- **Metastasis-vs-primary is largely the organ.** Cell composition separates liver mets from
+  primaries at `0.883` balanced accuracy, but `0.822` on tumour-dominated spots and `0.776` once
+  hepatocyte *and* tumour fraction are removed. For node mets the same contrast is `0.585`. A
+  patient-shuffle null sits at `0.469`, so the signal is real — it is simply site-dependent.
+- **The transferable "leaving program" is liver-specific.** Trained on liver mets it transfers into
+  primaries at `rho = 0.124`, positive in **9 of 10 patients**. Trained on node mets: `rho = 0.001`,
+  6 of 10. Same method, same primaries, opposite outcome by destination.
+- **H&E recovers the intra-primary program, not the metastatic one.** Across 4 patients /
+  2,679 spots: leaving programme `rho = 0.229` raw, `0.116` residualised, metastasis-derived
+  resemblance `-0.043`. The two targets correlate at only `0.101` — they were never the same thing.
+- **The contrastive bridge adds nothing** over the frozen foundation model, at any of the four
+  vision backbones tested.
 
 ---
 
 ## Environment
 
-```bash
-conda activate tcga   # Python 3.12, PyTorch, scvi-tools, scanpy, spatialdata
+Python — a **pure-pip** scientific stack (the `stproj` env on the current machine):
+
 ```
+numpy>=2   pandas<3   scipy   scikit-learn   matplotlib   seaborn   umap-learn   openpyxl
+torch      # CUDA build for stages 2 and 8; CPU is sufficient for stages 0-1 and 3-7
+```
+
+Do **not** mix conda's numpy/scipy/scikit-learn with pip's torch: the two OpenMP runtimes make
+`sklearn.decomposition.PCA` abort the process silently at exit 127, with no traceback. `pandas` is
+pinned `<3` because pandas 3's copy-on-write and string-dtype changes can silently move numbers
+that validated results depend on.
+
+R 4.5+ with `Seurat`, `SeuratObject`, `Matrix` and `data.table` is needed only for
+`04_Models/split_full_cohort.R`. `spacexr` is **not** required — the paper's own `rctd_fullfinal`
+assay is used rather than a local RCTD re-run (HANDOFF explains why this matters).
+
+---
+
+## Data
+
+Raw data is not in git. The `dataset/` layout, sizes and provenance are documented in
+[HANDOFF.md](HANDOFF.md); the six-sample subset also lives on Kaggle as
+[wanianaeem/zenodo-pt-and-hm-dataset](https://www.kaggle.com/datasets/wanianaeem/zenodo-pt-and-hm-dataset).
+
+[REVIEW_PLAN.md](REVIEW_PLAN.md) is the historical execution log for stages 0–4 — kept as a record
+of how the negatives were arrived at, not as a live plan.
