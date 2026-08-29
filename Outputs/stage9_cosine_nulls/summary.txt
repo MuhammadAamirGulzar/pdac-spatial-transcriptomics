@@ -1,0 +1,60 @@
+==============================================================================
+STAGE 9 -- nulls and uncertainty for the site-specificity claim
+==============================================================================
+
+[1/5] discovery cohort: 9 HM + 5 LNM metastatic sections, 10 primary, 42 features
+
+      feature magnitude spread (why scaling matters):
+        smallest: rctd::Normal Epithelial cells           0.00006
+        largest : MHCI                                 5241.06454
+        ratio   : 81,745,438x  -> an unscaled cosine is dominated by the largest features
+
+[2/5] cosine(HM-shift, LNM-shift) -- raw (as published in stage 6)
+      observed                          +0.547
+      patient bootstrap 95% CI          [+0.019, +0.762]   (9847 usable draws)
+      site-label null (exact, 2002 assignments)
+        median +0.756   2.5-97.5% [+0.314, +0.940]
+        P(null <= observed) = 0.1439   <- lower-tail test: is the cosine SMALLER than if site were irrelevant?
+      DETECTION LIMIT: at these group sizes the cosine must fall below +0.396 to reach one-sided p<0.05
+        -> observed sits INSIDE the null; this cohort cannot resolve it
+      within-HM  split-half ceiling      median +0.768  [-0.003, +0.949]  (126 splits)
+      within-LNM split-half ceiling      median +0.572  [+0.169, +0.751]  (10 splits)
+
+[2/5] cosine(HM-shift, LNM-shift) -- SD-scaled (stage 7 convention)
+      observed                          +0.445
+      patient bootstrap 95% CI          [-0.031, +0.606]   (9847 usable draws)
+      site-label null (exact, 2002 assignments)
+        median +0.651   2.5-97.5% [+0.257, +0.861]
+        P(null <= observed) = 0.1334   <- lower-tail test: is the cosine SMALLER than if site were irrelevant?
+      DETECTION LIMIT: at these group sizes the cosine must fall below +0.329 to reach one-sided p<0.05
+        -> observed sits INSIDE the null; this cohort cannot resolve it
+      within-HM  split-half ceiling      median +0.642  [-0.093, +0.873]  (126 splits)
+      within-LNM split-half ceiling      median +0.562  [+0.205, +0.734]  (10 splits)
+
+[3/5] differential test with the PATIENT as the unit (was: section)
+      HM patients 8   LNM patients 5   paired 4 ['PT_10', 'PT_12', 'PT_6', 'PT_8']
+      (stage 6 tested 9 vs 5 SECTIONS -- PT_2 contributed 2 HM sections)
+      features with q<0.10  --  section-level 2   patient-level 2
+
+      feature                             d_sect  q_sect   d_pat   q_pat  paired
+      rctd::B cells                        +2.03   0.042   +2.01   0.065  4/4
+      Bcells                               +1.20   0.498   +1.23   0.559  2/4
+      rctd::PVL                            +1.14   0.498   +1.17   0.559  3/4
+      Protumor-cytokines                   +1.15   0.498   +1.08   0.559  4/4
+      rctd::DCs                            +1.01   0.559   +1.00   0.744  2/4
+      M1-signature                         +0.78   0.559   +0.74   0.744  3/4
+      rctd::Hepatocytes                    -1.38   0.042   -1.50   0.065  0/4
+      Neutrophil-signature                 -1.51   0.406   -1.43   0.559  0/4
+      rctd::FCN1-TAM                       -1.10   0.559   -0.99   0.744  1/4
+
+      B cells: section-level d=+2.03 q=0.042  ->  patient-level d=+2.01 q=0.065, sign test p=0.125 (4/4)
+
+[4/5] replication cohort (GSE274557)
+      13 primary + 15 HM, 6 LuM, 14 PM   15 features
+
+      pair               obs          boot 95% CI  null median  P(null<=obs)
+      HM vs LuM       -0.205   [-0.496, +0.346]        +0.630        0.0005
+      HM vs PM        -0.004   [-0.483, +0.557]        +0.717        0.0000
+      LuM vs PM       -0.247   [-0.385, +0.339]        +0.177        0.0123
+
+[5/5] writing outputs

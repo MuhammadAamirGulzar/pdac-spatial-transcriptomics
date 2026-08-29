@@ -1,0 +1,97 @@
+{
+  "discovery": {
+    "raw (as published in stage 6)": {
+      "observed": 0.5465703601144697,
+      "boot_ci": [
+        0.01917041417842336,
+        0.7615925736081814
+      ],
+      "n_boot": 9847,
+      "null_median": 0.7562374799328352,
+      "null_lo": 0.31391755858688647,
+      "null_hi": 0.9402710423384022,
+      "null_exact": true,
+      "n_null": 2002,
+      "detection_limit_p05": 0.3956067272538412,
+      "p_lower_tail": 0.14385614385614387,
+      "ceiling_HM_median": 0.7675371918337286,
+      "ceiling_LNM_median": 0.571505227796395
+    },
+    "SD-scaled (stage 7 convention)": {
+      "observed": 0.4454352044093236,
+      "boot_ci": [
+        -0.03126898765037246,
+        0.6055169884463382
+      ],
+      "n_boot": 9847,
+      "null_median": 0.6507990805677717,
+      "null_lo": 0.25734329762335323,
+      "null_hi": 0.8608445615352981,
+      "null_exact": true,
+      "n_null": 2002,
+      "detection_limit_p05": 0.3286520574795465,
+      "p_lower_tail": 0.13336663336663337,
+      "ceiling_HM_median": 0.6419139093514707,
+      "ceiling_LNM_median": 0.5621077429422523
+    },
+    "differential": {
+      "n_hm_patients": 8,
+      "n_lnm_patients": 5,
+      "paired": [
+        "PT_10",
+        "PT_12",
+        "PT_6",
+        "PT_8"
+      ],
+      "n_sig_section": 2,
+      "n_sig_patient": 2,
+      "bcells": {
+        "d_section": 2.028529951361945,
+        "q_section": 0.0419580419580419,
+        "d_patient": 2.0127573285342257,
+        "q_patient": 0.06526806526806526,
+        "sign_p": 0.125,
+        "n_paired_higher": 4,
+        "n_paired": 4
+      }
+    }
+  },
+  "replication": {
+    "HM_vs_LuM": {
+      "observed": -0.2045349766913254,
+      "boot_ci": [
+        -0.49615015419198716,
+        0.3457842570786454
+      ],
+      "n_boot": 9966,
+      "null_median": 0.6301960241109921,
+      "null_exact": true,
+      "n_null": 54264,
+      "p_lower_tail": 0.0004791390240306649
+    },
+    "HM_vs_PM": {
+      "observed": -0.0037013743537233626,
+      "boot_ci": [
+        -0.48282106867839636,
+        0.5572671621609956
+      ],
+      "n_boot": 10000,
+      "null_median": 0.7172639273954778,
+      "null_exact": false,
+      "n_null": 20000,
+      "p_lower_tail": 0.0
+    },
+    "LuM_vs_PM": {
+      "observed": -0.24722171305296126,
+      "boot_ci": [
+        -0.3847884693686359,
+        0.339159817984399
+      ],
+      "n_boot": 9966,
+      "null_median": 0.17729435101510627,
+      "null_exact": true,
+      "n_null": 38760,
+      "p_lower_tail": 0.012306501547987616
+    }
+  }
+}
