@@ -52,3 +52,9 @@ Thumbs.db
 
 # Large regenerable intermediates (rebuilt by the stage scripts)
 Outputs/stage7_external_replication/spot_scores.csv.gz
+
+# Derived plotting cache (rebuilt by docs/presentation/_gene_expr.py)
+docs/presentation/_gene_cache/
+
+# Third-party reference papers (not ours to redistribute)
+docs/reference/
