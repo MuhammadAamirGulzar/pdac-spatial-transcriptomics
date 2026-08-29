@@ -47,7 +47,13 @@ M6 = load("stage6_site_program")
 M7 = load("stage7_external_replication")
 M7C = load("stage7_external_replication", "cosines_organ_marker_control.json")
 M8 = load("stage8_hest_cross_organ")
+M9 = load("stage9_cosine_nulls")
 INF = json.load(open(os.path.join(FIGS, "inference_example.json")))
+
+# stage 9, discovery cohort, raw convention -- the one stage 6 reports
+M9D = M9.get("discovery", {}).get("raw (as published in stage 6)", {})
+M9DIFF = M9.get("discovery", {}).get("differential", {})
+M9R = M9.get("replication", {})
 
 
 def acc(metrics, contrast, label):
@@ -182,12 +188,15 @@ P(doc,
   "computational work often trains a single model to recognise that state. We asked whether that "
   "grouping is justified at the level of gene expression. Using 91,496 spatially resolved "
   "expression measurements from 30 tissue sections of 13 patients, we compared how liver and "
-  "lymph node metastases differ from the matched primary tumour. The two destinations share only "
-  "about half of their departure from the primary, and the part that differs is immune, with B "
-  "cell content the single feature that survives correction for multiple testing. The result "
-  "reproduces in an independent cohort of 13 treatment naive patients covering liver, lung and "
-  "peritoneal deposits, where the shifts at different sites are unrelated or opposed rather than "
-  "shared, and where liver deposits are immune poor while lung deposits are immune rich. Finally "
+  "lymph node metastases differ from the matched primary tumour. They differ in immune content, "
+  "with B cell content the single feature that survives correction for multiple testing and rises "
+  "from liver to lymph node in every patient measured at both sites. Whether the two destinations "
+  "differ in their overall direction of change cannot be settled in this cohort: against a "
+  "permutation null the observed alignment is not significant, and we report the limit rather "
+  "than the estimate. That question is answered instead in an independent cohort of 13 treatment "
+  "naive patients covering liver, lung and peritoneal deposits, where the shifts at different "
+  "sites are unrelated or opposed rather than shared at every pairing, and where liver deposits "
+  "are immune poor while lung deposits are immune rich. Finally "
   "we tested a prediction that follows from these observations: if tissue context governs "
   "expression, a model that predicts expression from histology should not transfer between "
   "organs. On 156 sections spanning seven organs, transfer to a new laboratory studying the same "
@@ -310,6 +319,16 @@ bullets(doc, [
     "Paired comparisons within patients use the Wilcoxon signed rank test. With four pairs the "
     "smallest achievable p value is 0.125, so for these the informative quantity is the "
     "consistency of direction rather than significance.",
+    "Because one patient contributed two liver sections, every section level difference is "
+    "repeated with the patient as the unit, aggregating that patient's sections to a mean first.",
+    "Alignment between two site shifts is tested against a permutation null in which the site "
+    "labels are shuffled across the metastatic sections at fixed group sizes, enumerated "
+    "exhaustively where the number of assignments allows. The null is not centred on zero, "
+    "because both shifts are measured against the same primary centroid; the test is therefore "
+    "lower tailed, asking whether the sites diverge more than an arbitrary split of the same "
+    "sections would. Intervals come from resampling patients with replacement. A within site "
+    "split half alignment is reported alongside, as the noise ceiling any cross site value must "
+    "be read against.",
     "Classification uses logistic regression with leave one patient out cross validation and "
     "pooled out of fold balanced accuracy. A null distribution is built by relabelling primary "
     "sections into two arbitrary groups and repeating the procedure.",
@@ -430,18 +449,46 @@ note(doc, "Reading. A composition based description of metastatic direction is m
           "metastatic site. The transcriptome behaves differently: it separates both sites from "
           "primary at a similar and more modest level.")
 
-H(doc, "4.2 Objective 2. The two sites share about half a program, and differ in immune content", 2)
+H(doc, "4.2 Objective 2. The two sites differ in immune content; the global geometry is beyond "
+       "what this cohort can resolve", 2)
 P(doc,
   "For each site we computed the shift away from the matched primary tumour across 42 features, "
   "then measured how far the two shifts point in the same direction. The alignment is "
-  f"{M6.get('cos_HMshift_LNMshift', float('nan')):+.3f}" + ", so roughly half of what happens "
-  "when a tumour becomes a metastasis is common to both destinations and the rest depends on "
-  "where it landed.")
+  f"{M6.get('cos_HMshift_LNMshift', float('nan')):+.3f}. That number cannot be read on its own, "
+  "because the null for it is not zero: both shifts are measured against the same primary "
+  "centroid and therefore share a becoming a metastasis component by construction. If the two "
+  "destinations ran an identical program the alignment would sit near one, limited only by "
+  "sampling noise. The question is whether the observed value is lower than that, so the test is "
+  "a lower tailed one.")
 P(doc,
-  "Testing the 42 features individually at section level, two survive correction. B cell content "
+  "Permuting the site labels across the fourteen metastatic sections at fixed group sizes, with "
+  f"all {int(M9D.get('n_null', 0))} assignments enumerated exactly, places the null at a median of "
+  f"{M9D.get('null_median', float('nan')):+.3f}. The observed value gives "
+  f"P(null <= observed) = {M9D.get('p_lower_tail', float('nan')):.3f}, and the alignment would "
+  f"have to fall below {M9D.get('detection_limit_p05', float('nan')):+.3f} to reach one sided "
+  "significance. Two halves of the lymph node group agree with each other at "
+  f"{M9D.get('ceiling_LNM_median', float('nan')):+.3f}, which is indistinguishable from the "
+  "cross site value. Resampling patients gives a 95 percent interval of "
+  f"[{M9D.get('boot_ci', [float('nan')]*2)[0]:+.3f}, "
+  f"{M9D.get('boot_ci', [float('nan')]*2)[1]:+.3f}].")
+P(doc,
+  "This is a statement about the size of the discovery cohort, not about the biology. With nine "
+  "liver and five lymph node sections the global contrast cannot be resolved in either direction, "
+  "and we therefore make no claim about how much of the metastatic program is shared. Objective 3 "
+  "returns to the same question in a cohort that can answer it. What the discovery cohort does "
+  "support is the feature level result that follows.")
+P(doc,
+  "Testing the 42 features individually, two survive correction. B cell content "
   "is higher in lymph node deposits with a large effect size and agrees in all four patients who "
   "provided both sites. Hepatocyte content is higher in liver deposits, which is a positive "
-  "control: an analysis that failed to find liver cells in liver metastases would be broken.")
+  "control: an analysis that failed to find liver cells in liver metastases would be broken. "
+  "Because one patient contributed two liver sections, the same test was repeated with the "
+  "patient rather than the section as the unit. The B cell effect is unchanged at "
+  f"{M9DIFF.get('bcells', {}).get('d_patient', float('nan')):+.2f} against "
+  f"{M9DIFF.get('bcells', {}).get('d_section', float('nan')):+.2f}, with q moving from "
+  f"{M9DIFF.get('bcells', {}).get('q_section', float('nan')):.3f} to "
+  f"{M9DIFF.get('bcells', {}).get('q_patient', float('nan')):.3f} on the loss of one unit of n, "
+  "and the same two features remain the only ones below a q of 0.10.")
 sig, seen = [], set()
 for r in M6.get("top_LNM", []) + M6.get("top_HM", []):
     if r.get("q_unpaired", 1) < 0.10 and r["feature"] not in seen:
@@ -474,27 +521,41 @@ figure(doc, os.path.join(R, "stage6_site_program", "figures", "fig5_shared_vs_si
        "characterises the primary tumour.", width=5.2)
 
 doc.add_page_break()
-H(doc, "4.3 Objective 3. The pattern reproduces, and is stronger without chemotherapy", 2)
+H(doc, "4.3 Objective 3. In a cohort large enough to answer it, the sites are not running one "
+       "program", 2)
 cs = M7.get("cosines", {})
 csn = M7C.get("no_organ_markers", {})
 P(doc,
-  "The discovery cohort covers one pair of metastatic sites and includes patients who received "
-  "neoadjuvant chemotherapy. GSE274557 provides 55 sections from 13 treatment naive patients "
+  "The discovery cohort covers one pair of metastatic sites, includes patients who received "
+  "neoadjuvant chemotherapy, and as section 4.2 showed cannot resolve the global contrast. "
+  "GSE274557 provides 55 sections from 13 treatment naive patients "
   "sampling primary tumour together with liver, lung and peritoneal deposits, and 11 of those "
-  "patients contributed two or more different metastatic sites.")
-table(doc, ["Site pair", "Alignment, all features", "Alignment, organ markers removed"],
+  "patients contributed two or more different metastatic sites. This is where the question is "
+  "settled, and it is settled at all three pairings.")
+table(doc, ["Site pair", "Alignment", "Organ markers removed", "Permutation null", "P(null <= obs)"],
       [["Liver and lung", f"{cs.get('HM_vs_LuM', float('nan')):+.3f}",
-        f"{csn.get('HM_vs_LuM', float('nan')):+.3f}"],
+        f"{csn.get('HM_vs_LuM', float('nan')):+.3f}",
+        f"{M9R.get('HM_vs_LuM', {}).get('null_median', float('nan')):+.3f}",
+        f"{M9R.get('HM_vs_LuM', {}).get('p_lower_tail', float('nan')):.4f}"],
        ["Liver and peritoneum", f"{cs.get('HM_vs_PM', float('nan')):+.3f}",
-        f"{csn.get('HM_vs_PM', float('nan')):+.3f}"],
+        f"{csn.get('HM_vs_PM', float('nan')):+.3f}",
+        f"{M9R.get('HM_vs_PM', {}).get('null_median', float('nan')):+.3f}",
+        f"{M9R.get('HM_vs_PM', {}).get('p_lower_tail', float('nan')):.4f}"],
        ["Lung and peritoneum", f"{cs.get('LuM_vs_PM', float('nan')):+.3f}",
-        f"{csn.get('LuM_vs_PM', float('nan')):+.3f}"],
+        f"{csn.get('LuM_vs_PM', float('nan')):+.3f}",
+        f"{M9R.get('LuM_vs_PM', {}).get('null_median', float('nan')):+.3f}",
+        f"{M9R.get('LuM_vs_PM', {}).get('p_lower_tail', float('nan')):.4f}"],
        ["Discovery cohort, liver and lymph node",
-        f"{M6.get('cos_HMshift_LNMshift', float('nan')):+.3f}", ""]],
-      widths=[2.5, 1.9, 2.1],
-      caption="Table 4. Alignment between the shifts at two destinations. Values near zero or "
-              "below indicate that the two sites are not running one program. Removing organ "
-              "contamination markers strengthens rather than explains the effect.")
+        f"{M6.get('cos_HMshift_LNMshift', float('nan')):+.3f}", "",
+        f"{M9D.get('null_median', float('nan')):+.3f}",
+        f"{M9D.get('p_lower_tail', float('nan')):.4f}"]],
+      widths=[2.0, 1.1, 1.4, 1.2, 1.2],
+      caption="Table 4. Alignment between the shifts at two destinations, each against a "
+              "permutation null in which site labels are shuffled at fixed group sizes. The null "
+              "is well above zero because both shifts are measured from the same primary "
+              "centroid. All three replication pairings fall below it; the discovery cohort's "
+              "single pairing does not. Removing organ contamination markers strengthens rather "
+              "than explains the effect.")
 note(doc, "Reading. In the replication cohort the shifts are unrelated or opposed rather than "
           "partly shared. The direction is interpretable: immune content falls in liver deposits "
           "and rises in lung deposits. That opposition is why the alignment is negative, and it "
@@ -650,10 +711,13 @@ doc.add_page_break()
 H(doc, "8. Discussion", 1)
 P(doc,
   "Three analyses on three datasets point the same way. Metastatic deposits in different organs "
-  "are not interchangeable samples of one disease state. About half of the transcriptional change "
-  "between primary tumour and metastasis is shared between destinations, and the remainder "
-  "depends on where the deposit landed. The part that differs is immune, and the direction is "
-  "consistent with what is already known clinically about the liver as an immune tolerant site.")
+  "are not interchangeable samples of one disease state. In the discovery cohort that shows as a "
+  "difference in immune content between liver and lymph node deposits, consistent in every "
+  "patient measured at both sites; the cohort is too small to say anything about the overall "
+  "direction of change, and we do not. In the treatment naive replication cohort, where the "
+  "question can be asked properly, the shifts at three destinations are unrelated or opposed at "
+  "every pairing. The part that differs is immune, and the direction is consistent with what is "
+  "already known clinically about the liver as an immune tolerant site.")
 P(doc,
   "The third analysis is the one we would defend most strongly, for two reasons. It was specified "
   "as a prediction before it was run, derived from the first two results rather than fitted to "
@@ -680,6 +744,15 @@ bullets(doc, [
     "cell from its neighbour.",
     "Power. Only two of 42 features survive correction in the discovery cohort. Absence of "
     "evidence for the remaining 40 is not evidence of absence.",
+    "The discovery cohort cannot resolve the global alignment between the two site shifts. With "
+    "nine liver and five lymph node sections the alignment would have to fall below "
+    f"{M9D.get('detection_limit_p05', float('nan')):+.3f} to reach one sided significance, and "
+    "two halves of the lymph node group agree with each other no better than the two sites agree. "
+    "The corresponding claim rests on the replication cohort alone.",
+    "The two cohorts scale their features differently before the alignment is computed, the "
+    "discovery cohort on raw signature values and the replication cohort after dividing by the "
+    "feature standard deviation. Both conventions are reported in the supplement and the "
+    "conclusion is unchanged under either, but the two numbers are not directly comparable.",
     "The paired test cannot reach significance with four patients. Its value lies in the "
     "consistency of direction, not in a p value.",
     "The B cell result rests on one cohort. The replication cohort contains no lymph node "
@@ -695,9 +768,10 @@ bullets(doc, [
 
 H(doc, "10. Conclusion", 1)
 P(doc,
-  "Where a pancreatic tumour spreads changes what it becomes. Liver and lymph node deposits share "
-  "only about half of their departure from the primary tumour, the difference is immune, and the "
-  "pattern reproduces in an independent treatment naive cohort covering three metastatic sites. A "
+  "Where a pancreatic tumour spreads changes what it becomes. Liver and lymph node deposits "
+  "differ in immune content, consistently and in every patient measured at both sites, and in an "
+  "independent treatment naive cohort covering three metastatic sites the departures from the "
+  "primary tumour are unrelated or opposed rather than shared. A "
   "prediction derived from those observations, that histology to expression models should not "
   "cross organ boundaries, holds across seven organs after controlling for laboratory of origin. "
   "The practical consequence for the original aim of this project is that metastatic behaviour is "
@@ -720,7 +794,9 @@ table(doc, ["Objective", "Script", "Output folder"],
         "docs/reports/figures"],
        ["Figure 1", "docs/reports/make_methods_figure.py", "docs/reports/figures"],
        ["Negative results, section 6", "04_Models/stage1a_full_cohort.py and "
-        "04_Models/stage3_target_comparison.py", "Outputs/stage1a_full_cohort_residcaf"]],
+        "04_Models/stage3_target_comparison.py", "Outputs/stage1a_full_cohort_residcaf"],
+       ["Nulls and intervals, sections 4.2 and 4.3", "04_Models/stage9_cosine_nulls.py",
+        "Outputs/stage9_cosine_nulls"]],
       widths=[1.7, 2.9, 1.9],
       caption="Table 8. Every number in this report can be regenerated from these scripts.")
 
