@@ -176,9 +176,17 @@ setup(doc)
 
 H(doc, "Where a pancreatic tumour spreads changes what it becomes: "
        "site specific metastatic programs across three spatial transcriptomics datasets", 0)
-P(doc, "Author list to be completed", italic=True, color=GREY)
-P(doc, "Detailed analysis report and supplementary methods. "
-       "Draft for internal review.", italic=True, color=GREY, size=9.5)
+P(doc, "Muhammad Aamir Gulzar¹, Nabeeha Shafiq², Ashiq Masood³", size=11)
+P(doc, "¹ corresponding author.   ² contributed the distillation pipeline referenced in "
+       "section 6.   ³ Indiana University School of Medicine. "
+       "Affiliations and author order to be confirmed before submission.",
+  italic=True, color=GREY, size=9)
+P(doc, "Keywords: pancreatic ductal adenocarcinoma, spatial transcriptomics, metastatic "
+       "tropism, tumour immune microenvironment, computational pathology, foundation models",
+  size=9.5, color=GREY)
+P(doc, "Manuscript draft with supplementary methods. Analyses that remain outstanding are marked "
+       "in the text as awaiting and are listed in REMAINING_WORK.md; no result below depends on "
+       "them.", italic=True, color=GREY, size=9.5)
 
 # ------------------------------------------------------------------ abstract
 H(doc, "Abstract", 1)
@@ -257,6 +265,16 @@ table(doc,
        ["Spots", "91,496", "132,349", "about 500,000"]],
       widths=[1.5, 1.8, 1.8, 1.9],
       caption="Table 1. The three datasets. Each answers a question the previous one could not.")
+figure(doc, os.path.join(R, "stage6_site_program", "figures", "fig1_cohort_design.png"),
+       "Figure 1. Design of the discovery cohort. Nine of thirteen patients contributed a primary "
+       "tumour together with at least one metastasis, and four contributed both a liver and a "
+       "lymph node deposit. Those four carry every paired comparison in this report.", width=6.4)
+note(doc, "Awaiting. Treatment status is populated for 6 of the 13 discovery patients, all at "
+          "pM1, with a surgery date but no follow up and no survival endpoint. The full clinical "
+          "table has been requested from the source laboratory. Until it arrives the chemotherapy "
+          "exposure of the discovery cohort cannot be characterised, and the defence against that "
+          "confound rests on the replication cohort being treatment naive throughout. This is "
+          "stated again in the limitations.")
 
 H(doc, "3.2 What is measured, and how", 2)
 P(doc,
@@ -266,7 +284,7 @@ P(doc,
   "deconvolution has been run, an estimate of which cell types contribute to it. Figure 1 shows "
   "how these fit together.")
 figure(doc, os.path.join(FIGS, "fig_methods.png"),
-       "Figure 1. Study design. (a) The three datasets and the question each was used to answer. "
+       "Figure 2. Study design. (a) The three datasets and the question each was used to answer. "
        "(b) The three measurement channels available for every spot. They are parallel "
        "descriptions of the same tissue location, not a processing pipeline. (c) The three "
        "safeguards, each shown against the specific mistake it prevents. (d) The four objectives "
@@ -502,23 +520,55 @@ if sig:
           widths=[2.6, 1.2, 1.2, 1.7],
           caption="Table 3. The only two of 42 features that survive correction for multiple "
                   "testing. Positive d means higher in lymph node deposits.")
+note(doc, "Awaiting. The B cell measurement above is a deconvolution output. A direct marker "
+          "score computed from the raw counts, averaging MS4A1, CD79A, CD19, IGHM, CD79B and "
+          "BANK1 over the same purity gated spots, would remove the dependence on deconvolution "
+          "altogether, with T cell and myeloid panels scored identically as negative controls. "
+          "That analysis is specified but not yet run. If it disagrees with the deconvolution the "
+          "claim in this section would have to be withdrawn, so it is reported here as pending "
+          "rather than assumed.")
 P(doc, "The purity sweep is what makes the immune result usable. Across rising tumour purity "
        "thresholds, liver cell contamination falls roughly eightfold, from 0.133 to 0.017, while "
        "the lymphoid excess in nodal deposits holds at about twice the liver level throughout. A "
        "contamination artefact would decay alongside the contamination. This does not.")
 figure(doc, os.path.join(R, "stage6_site_program", "figures", "fig2_purity_control.png"),
-       "Figure 2. The purity control. Liver cell contamination falls from 0.133 to 0.017 across "
+       "Figure 3. The purity control. Liver cell contamination falls from 0.133 to 0.017 across "
        "the thresholds while the lymphoid ratio between nodal and liver deposits stays between "
        "1.96 and 2.44. Full numbers in Appendix A.", width=6.6)
 figure(doc, os.path.join(R, "stage6_site_program", "figures", "fig3_bcells_paired.png"),
-       "Figure 3. B cell content. Left, the four patients measured at both sites; every one rises "
+       "Figure 4. B cell content. Left, the four patients measured at both sites; every one rises "
        "from liver to lymph node. Right, all sections with primaries shown for reference.",
        width=6.3)
+figure(doc, os.path.join(R, "stage6_site_program", "figures", "fig4_effect_sizes.png"),
+       "Figure 5. Effect size for all 42 features. Two clear the correction: B cell content, "
+       "higher in lymph node deposits, and hepatocyte content, higher in liver deposits. The "
+       "second is a positive control rather than a finding.", width=6.2)
 figure(doc, os.path.join(R, "stage6_site_program", "figures", "fig5_shared_vs_sitespecific.png"),
-       "Figure 4. Each point is one feature, positioned by how much it changes at each "
+       "Figure 6. Each point is one feature, positioned by how much it changes at each "
        "destination. Under a single universal program every point would lie on the diagonal. "
        "Stromal features fall at both sites, so metastases shed the dense stroma that "
        "characterises the primary tumour.", width=5.2)
+figure(doc, os.path.join(R, "stage9_cosine_nulls", "figures", "fig9_nulls.png"),
+       "Figure 7. Why the alignment cannot be read directly. Left, the discovery cohort: the null "
+       "produced by shuffling site labels at fixed group sizes is centred well above zero, because "
+       "both shifts are measured from the same primary tumour centroid. The observed value lies "
+       "inside that null, and two halves of the lymph node group agree with each other no better "
+       "than the two sites agree. Right, the replication cohort, where every pairing falls below "
+       "its null.", width=6.7)
+
+H(doc, "4.2.1 Spatial organisation of the immune difference", 3)
+P(doc,
+  "The analysis above treats each section as a single pseudobulk measurement, which establishes "
+  "that the B cell difference exists but says nothing about how those cells are arranged. The "
+  "distinction matters: a diffuse increase in B cell content and a set of organised lymphoid "
+  "aggregates are different biology, and only the second would be invisible to bulk sequencing of "
+  "the same deposits.")
+note(doc, "Awaiting. Moran's I of the B cell fraction over the Visium hexagonal neighbourhood, "
+          "with a permutation p value, and a hot spot analysis of contiguous high B cell runs, "
+          "compared between liver and lymph node deposits at patient level. The method is "
+          "specified and the code to compute Moran's I already exists in this project; the "
+          "analysis has not yet been run. Its outcome does not affect any result reported here, "
+          "but it is the natural next question and will be added before submission.")
 
 doc.add_page_break()
 H(doc, "4.3 Objective 3. In a cohort large enough to answer it, the sites are not running one "
@@ -562,7 +612,7 @@ note(doc, "Reading. In the replication cohort the shifts are unrelated or oppose
           "agrees with the clinical observation that liver metastases are immune excluded and "
           "respond poorly to immunotherapy.")
 figure(doc, os.path.join(R, "stage7_external_replication", "figures", "fig6_replication.png"),
-       "Figure 5. Left, alignment between destinations in both cohorts. Right, every feature with "
+       "Figure 8. Left, alignment between destinations in both cohorts. Right, every feature with "
        "its shift at each of the three destinations; immune features spread widest and in "
        "opposite directions.", width=6.6)
 P(doc, "One limitation is specific and worth stating. This cohort contains no lymph node samples, "
@@ -591,7 +641,7 @@ table(doc, ["Condition", "Mean per gene correlation", "Change"],
       caption="Table 5. Transfer of a histology to expression model. Changing laboratory costs "
               "little. Changing organ costs a great deal.")
 figure(doc, os.path.join(R, "stage8_hest_cross_organ", "figures", "fig8_cross_organ.png"),
-       "Figure 6. Left, the three conditions. Right, every training and testing organ pair, with "
+       "Figure 9. Left, the three conditions. Right, every training and testing organ pair, with "
        "the same organ diagonal in bold. Brain barely receives transfer from any other organ.",
        width=6.6)
 note(doc, "Reading. The degradation is tissue biology rather than a technical artefact. What a "
@@ -615,12 +665,12 @@ P(doc,
   "are dense sheets of tumour cells, so the model is keying on structure a pathologist would also "
   "recognise.")
 figure(doc, os.path.join(FIGS, "fig_inference_example.png"),
-       "Figure 7. Inference on a held out section. (a) Four real tiles ordered by measured "
+       "Figure 10. Inference on a held out section. (a) Four real tiles ordered by measured "
        f"{INF['best_gene']}, each with the measured and predicted value. (b) The section mapped "
        "twice, by measured expression and by expression predicted from image alone. (c) Predicted "
        "against measured, one point per spot.", width=6.6)
 figure(doc, os.path.join(FIGS, "fig_inference_genes.png"),
-       "Figure 8. Not all genes are equally predictable. Genes tied to visible tissue structure "
+       "Figure 11. Not all genes are equally predictable. Genes tied to visible tissue structure "
        "are recovered well, while others are close to zero.", width=5.6)
 note(doc, "This example is deliberately favourable. It uses 60 training sections of one organ and "
           "genes chosen for variability within that organ. The cross organ numbers in section 4.4 "
@@ -663,6 +713,17 @@ P(doc,
   "while the target that histology does predict turns out not to track the metastatic axis. Given "
   "the results in sections 4.2 to 4.4, the most economical explanation is not that the model was "
   "too weak. It is that there was never a single metastatic target to learn.")
+P(doc,
+  "Three model families were tried against these targets: a tri-modal contrastive bridge trained "
+  "with InfoNCE across four histology foundation models, direct ridge regression on frozen "
+  "foundation model features, and a multimodal teacher distilled into a morphology only student. "
+  "The bridge never beat the frozen features it was built on. A full account of the three, under "
+  "a common evaluation protocol with patient grouped folds and an abundance ceiling, is the "
+  "subject of a companion methods paper and is not repeated here.")
+note(doc, "Awaiting. The distillation results are held back deliberately. The pipeline as first "
+          "written cross validates over spots rather than patients, so its accuracy figures are "
+          "not generalisation estimates and are not quoted anywhere in this report. They are "
+          "being recomputed with patient grouped folds for the companion paper.")
 
 # ------------------------------------------------------------------ traps
 doc.add_page_break()
@@ -778,7 +839,37 @@ P(doc,
   "not one target, and predicting it from histology will require targets defined per site rather "
   "than pooled.")
 
-H(doc, "11. Data and code", 1)
+H(doc, "11. References", 1)
+note(doc, "Volume and page numbers should be checked against a reference manager before "
+          "submission. The identifiers below are the reliable part of each entry.")
+numbered(doc, [
+    "Khaliq AM, Rajamohan M, Saeed O, et al. Spatial transcriptomic analysis of primary and "
+    "metastatic pancreatic cancers highlights tumor microenvironmental heterogeneity. "
+    "Nature Genetics, 2024. PMID 39294496. Discovery cohort, GSE272362.",
+    "Maitra A, et al. Spatial profiling of treatment naive pancreatic cancer and matched "
+    "metastases, 2025. PMID 40269162. Replication cohort, GSE274557.",
+    "Jaume G, Doucet P, Song AH, et al. HEST-1k: a dataset for spatial transcriptomics and "
+    "histology image analysis. Advances in Neural Information Processing Systems, Datasets and "
+    "Benchmarks Track, 2024. Generalisation cohort.",
+    "Chen RJ, Ding T, Lu MY, et al. Towards a general purpose foundation model for computational "
+    "pathology. Nature Medicine, 2024. The UNI and UNI2-h morphology encoder.",
+    "Lu MY, Chen B, Williamson DFK, et al. A visual language foundation model for computational "
+    "pathology. Nature Medicine, 2024. CONCH, used in the model comparison of section 6.",
+    "Cable DM, Murray E, Zou LS, et al. Robust decomposition of cell type mixtures in spatial "
+    "transcriptomics. Nature Biotechnology, 2022. RCTD, the deconvolution used throughout.",
+    "Lopez R, Regier J, Cole MB, Jordan MI, Yosef N. Deep generative modeling for single cell "
+    "transcriptomics. Nature Methods, 2018. scVI, the gene expression latent space.",
+    "Bagaev A, Kotlov N, Nomie K, et al. Conquering the tumor microenvironment: 29 functional "
+    "gene expression signatures. Cancer Cell, 2021. The signature panel scored per spot.",
+    "Benjamini Y, Hochberg Y. Controlling the false discovery rate: a practical and powerful "
+    "approach to multiple testing. Journal of the Royal Statistical Society Series B, 1995.",
+    "Moran PAP. Notes on continuous stochastic phenomena. Biometrika, 1950. The spatial "
+    "autocorrelation statistic used in section 4.2.1.",
+    "Hinton G, Vinyals O, Dean J. Distilling the knowledge in a neural network. "
+    "arXiv:1503.02531, 2015. The distillation approach referenced in section 6.",
+])
+
+H(doc, "12. Data and code", 1)
 bullets(doc, [
     "GSE272362, Khaliq et al., Nature Genetics 2024. Discovery cohort.",
     "GSE274557, Maitra laboratory 2025, PMID 40269162. Replication cohort.",

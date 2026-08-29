@@ -213,6 +213,9 @@ for tag, sd in [("raw (as published in stage 6)", None), ("SD-scaled (stage 7 co
         log(f"      within-LNM split-half ceiling      median {np.median(ceil_ln):+.3f}  "
             f"[{ceil_ln.min():+.3f}, {ceil_ln.max():+.3f}]  ({len(ceil_ln)} splits)")
 
+    if sd is None:      # save the raw-convention arrays for the figure script
+        np.savez(os.path.join(OUT, "discovery_null_arrays.npz"),
+                 null=null, boot=boot, ceil_hm=ceil_hm, ceil_ln=ceil_ln, observed=obs)
     results["discovery"][tag] = dict(
         observed=obs, boot_ci=[float(lo), float(hi)], n_boot=len(boot),
         null_median=float(np.median(null)), null_lo=float(np.percentile(null, 2.5)),
@@ -307,6 +310,7 @@ for a, b in [("HM", "LuM"), ("HM", "PM"), ("LuM", "PM")]:
     rep[f"{a}_vs_{b}"] = dict(observed=obs, boot_ci=[float(lo), float(hi)], n_boot=len(boot),
                               null_median=float(np.median(null)), null_exact=bool(exact),
                               n_null=len(null), p_lower_tail=p_low)
+    np.savez(os.path.join(OUT, f"replication_null_{a}_vs_{b}.npz"), null=null, observed=obs)
 results["replication"] = rep
 
 # =================================================================== save
